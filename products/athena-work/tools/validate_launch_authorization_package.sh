@@ -51,6 +51,7 @@ required_top = [
     "gates",
     "required_confirmation_markers",
     "release_bundle_path",
+    "release_bundle_decision",
     "blockers",
 ]
 for key in required_top:
@@ -69,6 +70,10 @@ if not isinstance(payload.get("blockers"), list):
 status = payload.get("status")
 if status not in {"ready", "blocked"}:
     print("FAIL: status must be ready|blocked")
+    raise SystemExit(1)
+
+if payload.get("release_bundle_decision") not in {"ship", "hold", "missing"}:
+    print("FAIL: release_bundle_decision must be ship|hold|missing")
     raise SystemExit(1)
 
 print("PASS: launch authorization package structure is valid")

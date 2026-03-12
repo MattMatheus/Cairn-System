@@ -33,7 +33,7 @@ All must pass:
 1. Story acceptance criteria are implemented.
 2. Tests updated for touched behavior.
 3. `./products/athena-work/tools/run_doc_tests.sh` and story-specific tests pass.
-4. `go test ./...` passes locally and is eligible for CI enforcement in Azure DevOps.
+4. Go tests pass locally for each touched Go module (for example `cd products/athena-use && go test ./...`) and are eligible for CI enforcement in Azure DevOps.
 5. Handoff package is complete and includes risks/questions.
 6. New gaps are recorded as intake artifacts before handoff.
 7. Story transitions `active -> qa`.

@@ -3,7 +3,7 @@
 ## Metadata
 - `id`: STORY-20260312-athenawork-alpha-release-readiness
 - `owner_persona`: Product Manager - AthenaWork
-- `status`: active
+- `status`: done
 - `idea_id`: direct
 - `phase`: v0.1
 - `adr_refs`: [ADR-0004]
@@ -41,3 +41,4 @@
 
 ## Notes
 - Prioritize truthful alpha shipment over additional cleanup. Historical validation cleanup can continue after feedback starts flowing.
+- This cycle establishes the first real alpha release bundle and a reproducible approval path; it does not replace the explicit human confirmation requirement.

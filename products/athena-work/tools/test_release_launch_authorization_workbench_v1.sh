@@ -35,4 +35,22 @@ else
   DOC_TEST_FAILURES=$((DOC_TEST_FAILURES + 1))
 fi
 
+if python3 - "$package_out" <<'PY'
+import json
+import sys
+
+payload = json.load(open(sys.argv[1], "r", encoding="utf-8"))
+decision = payload.get("release_bundle_decision")
+if decision in {"ship", "hold", "missing"}:
+    print("PASS: Generated launch package includes release bundle decision")
+else:
+    print("FAIL: Generated launch package includes release bundle decision")
+    raise SystemExit(1)
+PY
+then
+  :
+else
+  DOC_TEST_FAILURES=$((DOC_TEST_FAILURES + 1))
+fi
+
 doc_test_finish

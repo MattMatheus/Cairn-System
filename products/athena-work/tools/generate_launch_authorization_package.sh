@@ -12,7 +12,7 @@ branch="$(git -C "$root_dir" rev-parse --abbrev-ref HEAD)"
 eng_active_dir="$root_dir/products/athena-work/delivery-backlog/engineering/active"
 eng_intake_dir="$root_dir/products/athena-work/delivery-backlog/engineering/intake"
 eng_qa_readme="$root_dir/products/athena-work/delivery-backlog/engineering/qa/README.md"
-release_bundle="$root_dir/products/athena-work/operating-system/handoff/RELEASE_BUNDLE_v0.1-initial-2026-02-22.md"
+handoff_dir="$root_dir/products/athena-work/operating-system/handoff"
 runtime_state_file="${ATHENA_RUNTIME_STATE_FILE:-$root_dir/products/athena-work/operating-system/state/runtime/backend_read_model_v1.local.json}"
 state_file="$root_dir/products/athena-work/operating-system/state/backend_read_model_v1.json"
 
@@ -49,6 +49,26 @@ count_queue_readme_entries() {
 engineering_active_count="$(count_matching_files "$eng_active_dir" '*.md' 'README.md')"
 engineering_intake_count="$(count_matching_files "$eng_intake_dir" '*.md' '*TEMPLATE*')"
 engineering_qa_count="$(count_queue_readme_entries "$eng_qa_readme")"
+
+resolve_release_bundle() {
+  local explicit="${ATHENA_RELEASE_BUNDLE_PATH:-}"
+  if [[ -n "$explicit" ]]; then
+    printf '%s' "$explicit"
+    return 0
+  fi
+  find "$handoff_dir" -maxdepth 1 -type f -name 'RELEASE_BUNDLE_*.md' ! -name 'RELEASE_BUNDLE_TEMPLATE.md' | sort | tail -n 1
+}
+
+extract_bundle_decision() {
+  local path="$1"
+  if [[ ! -f "$path" ]]; then
+    return 0
+  fi
+  sed -n '/^## Decision$/,/^## /p' "$path" | sed -n 's/^[[:space:]]*-[[:space:]]*`\([^`][^`]*\)`[[:space:]]*$/\1/p' | head -n 1
+}
+
+release_bundle="$(resolve_release_bundle)"
+release_bundle_decision="$(extract_bundle_decision "$release_bundle")"
 
 test_doc_status="unknown"
 if "$root_dir/products/athena-work/tools/test_workspace_ui_read_only_board_v1.sh" >/dev/null 2>&1; then
@@ -115,8 +135,10 @@ fi
 if [[ "$confirmation_status" != "confirmed" ]]; then
   blockers+=("direction confirmation status is not confirmed")
 fi
-if [[ ! -f "$release_bundle" ]]; then
+if [[ -z "$release_bundle" || ! -f "$release_bundle" ]]; then
   blockers+=("release bundle file missing")
+elif [[ "$release_bundle_decision" != "ship" ]]; then
+  blockers+=("release bundle decision is not ship")
 fi
 
 status="blocked"
@@ -135,8 +157,8 @@ fi
 
 python3 - "$out_file" "$created_at" "$short_sha" "$branch" "$status" \
   "$engineering_active_count" "$engineering_intake_count" "$engineering_qa_count" \
-  "$test_doc_status" "$security_gate_status" "$release_bundle" "$blockers_json" \
-  "$queue_readiness" "$confirmation_readiness" "$security_readiness" <<'PY'
+  "$test_doc_status" "$security_gate_status" "$release_bundle" "$release_bundle_decision" \
+  "$blockers_json" "$queue_readiness" "$confirmation_readiness" "$security_readiness" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -153,6 +175,7 @@ from pathlib import Path
     doc_status,
     sec_status,
     release_bundle,
+    release_bundle_decision,
     blockers_json,
     queue_readiness,
     confirmation_readiness,
@@ -184,6 +207,7 @@ payload = {
         "dev_to_prod_requires_human_approval": True,
     },
     "release_bundle_path": str(Path(release_bundle)),
+    "release_bundle_decision": release_bundle_decision or "missing",
     "blockers": json.loads(blockers_json),
 }
 payload["blocker_count"] = len(payload["blockers"])

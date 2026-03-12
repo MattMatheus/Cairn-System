@@ -48,6 +48,7 @@ Commit policy is cycle-based:
 - `docs/operator/athena-work/process/STAGE_EXIT_GATES.md`
 - `docs/operator/athena-work/process/BACKLOG_WEIGHTING_POLICY.md`
 - `docs/operator/athena-work/process/OPERATOR_DAILY_WORKFLOW.md`
+- `docs/operator/athena-work/operations/ALPHA_RELEASE_CHECKPOINT.md`
 
 ## Backlog State Model
 - `products/athena-work/delivery-backlog/engineering/intake/`
