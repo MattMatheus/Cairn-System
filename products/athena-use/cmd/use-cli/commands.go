@@ -140,7 +140,7 @@ func runContext(args []string) (err error) {
 		payload := map[string]any{
 			"tool_context": map[string]any{
 				"stage": *stage,
-				"tools": summarizeTools(tools),
+				"tools": summarizeContextTools(tools),
 			},
 		}
 		data, err := json.MarshalIndent(payload, "", "  ")
@@ -153,13 +153,31 @@ func runContext(args []string) (err error) {
 		fmt.Println("tool_context:")
 		fmt.Printf("  stage: %s\n", strings.TrimSpace(*stage))
 		fmt.Println("  tools:")
-		for _, tool := range summarizeTools(tools) {
+		for _, tool := range summarizeContextTools(tools) {
 			fmt.Printf("    - id: %s\n", tool["id"])
 			fmt.Printf("      name: %s\n", tool["name"])
 			fmt.Printf("      description: %s\n", tool["description"])
 			fmt.Printf("      call_type: %s\n", tool["call_type"])
 			fmt.Printf("      credential_ref: %s\n", tool["credential_ref"])
 			fmt.Printf("      support_tier: %s\n", tool["support_tier"])
+			fmt.Printf("      schema_summary: %s\n", tool["schema_summary"])
+			fields := tool["parameters"].([]map[string]any)
+			if len(fields) == 0 {
+				fmt.Println("      parameters: []")
+				continue
+			}
+			fmt.Println("      parameters:")
+			for _, field := range fields {
+				fmt.Printf("        - name: %s\n", field["name"])
+				fmt.Printf("          type: %s\n", field["type"])
+				fmt.Printf("          required: %t\n", field["required"])
+				if description, ok := field["description"].(string); ok && description != "" {
+					fmt.Printf("          description: %s\n", description)
+				}
+				if enumValues, ok := field["enum"].([]string); ok && len(enumValues) > 0 {
+					fmt.Printf("          enum: [%s]\n", strings.Join(enumValues, ", "))
+				}
+			}
 		}
 		return nil
 	default:
@@ -267,6 +285,41 @@ func summarizeTools(tools []types.Tool) []map[string]any {
 			"credential_ref": tool.CredentialRef,
 			"call_type":      tool.Call.Type,
 			"support_tier":   tool.SupportTier,
+		})
+	}
+	return summary
+}
+
+func summarizeContextTools(tools []types.Tool) []map[string]any {
+	summary := make([]map[string]any, 0, len(tools))
+	for _, tool := range tools {
+		summary = append(summary, map[string]any{
+			"id":             tool.ID,
+			"name":           tool.Name,
+			"description":    tool.Description,
+			"schema":         schemaSummary(tool.Schema),
+			"schema_summary": schemaSummary(tool.Schema),
+			"parameters":     summarizeSchemaFields(tool.Schema),
+			"credential_ref": tool.CredentialRef,
+			"call_type":      tool.Call.Type,
+			"support_tier":   tool.SupportTier,
+		})
+	}
+	return summary
+}
+
+func summarizeSchemaFields(fields []types.SchemaField) []map[string]any {
+	if len(fields) == 0 {
+		return []map[string]any{}
+	}
+	summary := make([]map[string]any, 0, len(fields))
+	for _, field := range fields {
+		summary = append(summary, map[string]any{
+			"name":        field.Name,
+			"type":        field.Type,
+			"required":    field.Required,
+			"description": field.Description,
+			"enum":        append([]string{}, field.Enum...),
 		})
 	}
 	return summary
