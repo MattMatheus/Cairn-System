@@ -3,7 +3,7 @@
 ## Metadata
 - `id`: STORY-20260312-athenause-shared-validation
 - `owner_persona`: Product Manager - AthenaWork
-- `status`: active
+- `status`: done
 - `idea_id`: direct
 - `phase`: v0.1
 - `adr_refs`: [ADR-0005, ADR-0006]

@@ -18,6 +18,9 @@ if [[ -z "$current_branch" ]]; then
   current_branch="master"
 fi
 
+echo "== AthenaUse registry validation =="
+"$root_dir/tools/platform/validate_athenause_registry.sh" >/dev/null
+
 echo "== AthenaMind tests =="
 (
   cd "$root_dir/products/athena-mind"

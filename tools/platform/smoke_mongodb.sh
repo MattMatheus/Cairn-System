@@ -27,6 +27,9 @@ run_memory_cli() {
   )
 }
 
+echo "== AthenaUse registry validation =="
+"$root_dir/tools/platform/validate_athenause_registry.sh" >/dev/null
+
 echo "== AthenaMind tests =="
 (
   cd "$root_dir/products/athena-mind"
