@@ -1,0 +1,31 @@
+version: 1
+tools:
+  - id: athena.platform.smoke_v1
+    name: Run Platform Smoke V1
+    description: Runs the supported sqlite-first AthenaPlatform smoke path from the repo root
+    tags: [athena, platform, smoke]
+    stage_affinity: [engineering, qa]
+    credential: ""
+    call:
+      type: exec
+      command: ./tools/platform/smoke_v1.sh
+    schema: []
+  - id: athena.memory.verify_health
+    name: Verify AthenaMind Health
+    description: Checks local AthenaMind retrieval health for a memory root and query
+    tags: [athena, memory, validation]
+    stage_affinity: [engineering, qa, pm]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/athena-mind && go run ./cmd/memory-cli verify health
+    schema:
+      - name: root
+        type: string
+        required: true
+      - name: query
+        type: string
+        required: true
+      - name: domain
+        type: string
+        required: false

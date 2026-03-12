@@ -1,0 +1,52 @@
+<!-- AUDIENCE: Internal/Technical -->
+
+# Next Agent Directive (Engineering)
+
+Your task is to execute the top story in `delivery-backlog/engineering/active/`.
+
+## Accessibility Profile (Mandatory)
+Before step 1, select and record active profile(s) for this cycle:
+- `low-vision-default`
+- `high-variability-attention`
+- both (if needed)
+Use single-task focus and concise recovery steps in all outputs.
+
+## Launch Rule
+- If `delivery-backlog/engineering/active/` has no story files, report exactly: `no stories`.
+- Do not fabricate work when active is empty.
+- Product management should run only when active is empty.
+
+## Implementation Cycle (Mandatory)
+1. Take the top story from `delivery-backlog/engineering/active/`.
+2. Read, research, and implement. Surface questions if outcome is unclear.
+   - Apply `delivery-backlog/STATE_TRANSITION_CHECKLIST.md` before moving story state.
+3. Update tests.
+4. Run tests with the canonical docs command (`tools/run_doc_tests.sh`) plus any story-specific test commands. Tests must pass.
+   - Include `go test ./...` before handoff.
+   - Run quality gate checks before handoff:
+     - `gofmt -w <changed-go-files>` for Go edits
+     - `go test ./...` for Go changes
+     - `shellcheck <changed-shell-scripts>` when shell scripts change (if available)
+     - `markdownlint <changed-markdown-files>` when docs change (if available)
+   - If a quality tool is unavailable in the environment, report it explicitly in handoff notes.
+5. Prepare handoff package.
+6. Move the story to `delivery-backlog/engineering/qa/`.
+7. Do not commit yet; cycle commit occurs only after QA + observer.
+
+## Handoff Package (Required)
+- What changed
+- Why it changed
+- Test updates made
+- Test run results
+- Open risks/questions
+- Recommended QA focus areas
+- New gaps discovered during implementation (as intake story paths in `delivery-backlog/engineering/intake/`)
+
+## Constraints
+- Do not skip tests.
+- Use `tools/run_doc_tests.sh` as the default docs validation entrypoint.
+- Run and report quality-gate checks for the changed file types before handoff.
+- Do not move story to done directly from active.
+- Respect accepted ADRs and state-harness scope.
+- If a gap is discovered, log a new intake story before handoff.
+- Apply stage exit requirements in `knowledge-base/process/STAGE_EXIT_GATES.md`.

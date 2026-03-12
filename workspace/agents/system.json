@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "agent_section": {
+    "name": "AthenaWork Agent Operations",
+    "layout": {
+      "operator_entrypoint": "workspace/docs/HUMANS.md",
+      "agent_entrypoint": "workspace/AGENTS.md",
+      "core_paths": {
+        "work_zone": "workspace/work/",
+        "contracts_zone": "products/athena-work/operating-system-vault/",
+        "assets_zone": "workspace/templates/",
+        "agent_zone": "workspace/agents/",
+        "research_zone": "workspace/research/",
+        "tools": "tools/"
+      }
+    },
+    "user_content_prune": {
+      "confirmation_token": "PRUNE_USER_CONTENT",
+      "delete_roots": [
+        "workspace/work",
+        "workspace/research"
+      ],
+      "placeholders": [
+        {
+          "path": "workspace/work/README.md",
+          "content": "# Work\n\nUser-generated work content is maintained in private workspace.\n\nOnly approved operational artifacts should be promoted here.\n"
+        },
+        {
+          "path": "workspace/research/README.md",
+          "content": "# Research\n\nUser-generated research content is maintained in private workspace.\n\nOnly approved claim and artifact promotions should be stored here.\n"
+        }
+      ]
+    }
+  }
+}
