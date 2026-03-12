@@ -23,6 +23,7 @@ Today the platform contains:
 
 - Internal beta start: `INTERNAL_BETA.md`
 - Unified quickstart: `PLATFORM_QUICKSTART.md`
+- Local bootstrap: `tools/dev/bootstrap_platform.sh`
 - Operator docs: `docs/operator/README.md`
 - Product docs: `docs/product/README.md`
 - Platform scaffold: `docs/platform-layout.md`

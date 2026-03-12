@@ -8,6 +8,20 @@ This quickstart shows the intended developer path through the unified platform.
 - a local checkout of this repository
 - optional: Podman and Ollama if you want local embedding service support
 
+## 0. Bootstrap The Repo
+
+From repo root:
+
+```bash
+./tools/dev/bootstrap_platform.sh
+```
+
+Optional module download during bootstrap:
+
+```bash
+./tools/dev/bootstrap_platform.sh --download-modules
+```
+
 ## Local Runtime Boundary
 
 Use a repo-local `.athena/` directory for uncommitted Athena runtime state.
@@ -39,9 +53,8 @@ mkdir -p "$ATHENA_MEMORY_ROOT"
 From repo root:
 
 ```bash
-cd products/athena-mind
-go test ./...
-cd ../..
+cd products/athena-mind && go test ./...
+cd products/athena-use && go test ./...
 ```
 
 ## 2. Create One Local Memory Entry
@@ -127,6 +140,7 @@ The launcher emits stage instructions plus scoped approved tool context from Ath
 - AthenaMind product: `products/athena-mind/README.md`
 - AthenaWork product: `products/athena-work/README.md`
 - workspace operator surface: `workspace/docs/HUMANS.md`
+- release artifacts: `./tools/dev/build_release_artifacts.sh --version <label>`
 
 ## Notes
 

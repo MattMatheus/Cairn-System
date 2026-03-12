@@ -5,9 +5,10 @@ Single-operator daily script for AthenaWork state harness cycles.
 ## Startup Routine
 1. Confirm branch discipline (`dev`).
 2. Review `docs/operator/athena-work/process/CYCLE_INDEX.md` and `docs/operator/athena-work/DEVELOPMENT_CYCLE.md`.
-3. Run `./products/athena-work/tools/run_doc_tests.sh`.
-4. Confirm active queue in `products/athena-work/delivery-backlog/engineering/active/README.md`.
-5. Review `docs/operator/athena-work/process/PROGRAM_OPERATING_SYSTEM.md`.
+3. Run `./products/athena-work/tools/check_go_toolchain.sh`.
+4. Run `./products/athena-work/tools/run_doc_tests.sh`.
+5. Confirm active queue in `products/athena-work/delivery-backlog/engineering/active/README.md`.
+6. Review `docs/operator/athena-work/process/PROGRAM_OPERATING_SYSTEM.md`.
 
 ## Engineering + QA Loop
 1. `./products/athena-work/tools/launch_stage.sh engineering`

@@ -34,7 +34,7 @@ Use this order:
 1. Run targeted tests for the touched behavior.
 2. Run `products/athena-work/tools/run_doc_tests.sh` when docs, prompts, or process behavior changed.
 3. Run broader repo validation when the change crosses package or system boundaries.
-4. Run `go test ./...` when Go code or shared Go tooling is affected.
+4. Run `go test ./...` in each touched Go module when Go code or shared Go tooling is affected.
 5. Record the exact commands and outcomes in the handoff.
 
 Choose the smallest credible set, but do not skip required gates just because the change feels local.
@@ -55,7 +55,7 @@ If a check cannot be run, the handoff must say why and what risk remains.
 - claiming "tested" without commands
 - running only global tests and missing the touched behavior
 - running only local checks when shared interfaces changed
-- omitting `go test ./...` or doc tests when required by the touched area
+- omitting module-scoped `go test ./...` or doc tests when required by the touched area
 
 ## References
 

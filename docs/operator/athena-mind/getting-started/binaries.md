@@ -2,52 +2,41 @@
 
 ## Summary
 
-Precompiled binaries are not yet a canonical AthenaPlatform distribution path.
+AthenaPlatform now supports a canonical build path for precompiled CLI artifacts through Azure DevOps and the shared release build script.
 
-This page is retained as a historical note from AthenaMind’s prior standalone distribution model.
+## Artifact Naming
 
-## Historical Artifact Naming
+Current release artifacts use this deterministic format:
 
-Release artifacts use this deterministic format:
-
-- `memory-cli_<version>_darwin_amd64.zip`
 - `memory-cli_<version>_darwin_arm64.zip`
 - `memory-cli_<version>_windows_amd64.zip`
-- `memory-cli_<version>_windows_arm64.zip`
+- `use-cli_<version>_darwin_arm64.zip`
+- `use-cli_<version>_windows_amd64.zip`
 - `SHA256SUMS`
 
-`<version>` matches the git tag, for example `v0.2.0`.
+`<version>` matches the release label used by the build, for example `alpha-2026-03-12` or `azure-1234`.
 
-## Historical Download Flow
+## Supported Build Paths
 
-1. Open releases: `https://github.com/MattMatheus/AthenaMind/releases`
-2. Select the desired version tag.
-3. Download the artifact for your OS/architecture.
-4. Verify checksum using `SHA256SUMS`.
-5. Unzip and place `memory-cli` (or `memory-cli.exe`) in your PATH.
-
-## Historical Automation Flow
-
-Latest release metadata:
+### Local build
 
 ```bash
-curl -fsSL https://api.github.com/repos/MattMatheus/AthenaMind/releases/latest
+./tools/dev/build_release_artifacts.sh --version alpha-local
 ```
 
-Example: download latest Apple Silicon binary:
+Artifacts are written under `.athena/artifacts/releases/<version>/`.
 
-```bash
-curl -fsSL -o memory-cli_darwin_arm64.zip \
-  https://github.com/MattMatheus/AthenaMind/releases/latest/download/memory-cli_$(curl -fsSL https://api.github.com/repos/MattMatheus/AthenaMind/releases/latest | jq -r .tag_name)_darwin_arm64.zip
-```
+### Azure DevOps
 
-Example: download a pinned version (recommended for reproducibility):
+`azure-pipelines.yml` runs:
 
-```bash
-VERSION=v0.2.0
-curl -fsSL -o memory-cli_${VERSION}_windows_amd64.zip \
-  https://github.com/MattMatheus/AthenaMind/releases/download/${VERSION}/memory-cli_${VERSION}_windows_amd64.zip
-```
+1. `./tools/dev/bootstrap_platform.sh`
+2. AthenaWork doc tests
+3. `go test ./...` in `products/athena-use`
+4. `go test ./...` in `products/athena-mind`
+5. `./tools/dev/build_release_artifacts.sh --version "azure-<build-id>"`
+
+The resulting zipped binaries and `SHA256SUMS` file are published as the `athena-release-artifacts` build artifact.
 
 ## Verify Checksums
 
@@ -60,10 +49,10 @@ shasum -a 256 -c SHA256SUMS
 Windows PowerShell:
 
 ```powershell
-Get-FileHash .\memory-cli_v0.2.0_windows_amd64.zip -Algorithm SHA256
+Get-FileHash .\memory-cli_alpha-local_windows_amd64.zip -Algorithm SHA256
 ```
 
 ## Platform Note
 
-- AthenaPlatform currently treats source builds as the primary supported path.
-- If a platform release pipeline is added later, this document should be rewritten around the canonical AthenaPlatform release process.
+- Source builds remain the default for development.
+- Precompiled artifacts are now intended for alpha distribution and operator convenience, not as a replacement for source-based debugging.

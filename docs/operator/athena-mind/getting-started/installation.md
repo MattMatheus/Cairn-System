@@ -16,16 +16,20 @@ Install runtime prerequisites and verify the slim AthenaMind distribution is hea
    - Precompiled binary guidance: `docs/operator/athena-mind/getting-started/binaries.md`
    - Build from source: continue below
 2. Clone and enter repo.
-3. Verify Go:
+3. Bootstrap the repo-local runtime and verify the toolchain:
+```bash
+./tools/dev/bootstrap_platform.sh
+```
+4. Verify Go:
 ```bash
 go version
 ```
-4. Download modules:
+5. Download modules:
 ```bash
 cd products/athena-mind
 go mod download
 ```
-5. Run full tests:
+6. Run full tests:
 ```bash
 cd products/athena-mind
 go test ./...

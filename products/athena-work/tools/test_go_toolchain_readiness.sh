@@ -11,20 +11,21 @@ doc_test_init
 
 doc_assert_exists "$script_dir/check_go_toolchain.sh" "Go toolchain preflight script exists"
 doc_assert_exists "$howto_doc" "Go setup how-to doc exists"
-doc_assert_contains "$howto_doc" 'Source of truth: `go.mod`' "How-to references go.mod as source of truth"
+doc_assert_contains "$howto_doc" 'Source of truth: `products/athena-mind/go.mod` and `products/athena-use/go.mod`' "How-to references product go.mod files as source of truth"
 doc_assert_contains "$howto_doc" "tools/check_go_toolchain.sh" "How-to references toolchain preflight command"
-doc_assert_contains "$howto_doc" "go test ./..." "How-to references canonical Go test command"
+doc_assert_contains "$howto_doc" "cd products/athena-use && go test ./..." "How-to references AthenaUse Go test command"
+doc_assert_contains "$howto_doc" "cd products/athena-mind && go test ./..." "How-to references AthenaMind Go test command"
 doc_assert_contains "$workflow_doc" "tools/check_go_toolchain.sh" "Daily workflow includes Go toolchain preflight"
 
-required_go="$(awk '/^go[[:space:]]+[0-9]+\.[0-9]+/{print $2; exit}' "$root_dir/go.mod")"
+required_go="$(awk '/^go[[:space:]]+[0-9]+\.[0-9]+/{print $2; exit}' "$root_dir/products/athena-mind/go.mod")"
 if [[ -z "$required_go" ]]; then
-  echo "FAIL: go.mod includes required Go version"
+  echo "FAIL: product go.mod includes required Go version"
   DOC_TEST_FAILURES=$((DOC_TEST_FAILURES + 1))
 else
   if grep -Fq "Current minimum: \`go $required_go\`" "$howto_doc"; then
-    echo "PASS: How-to minimum Go version matches go.mod ($required_go)"
+    echo "PASS: How-to minimum Go version matches product go.mod ($required_go)"
   else
-    echo "FAIL: How-to minimum Go version matches go.mod ($required_go)"
+    echo "FAIL: How-to minimum Go version matches product go.mod ($required_go)"
     DOC_TEST_FAILURES=$((DOC_TEST_FAILURES + 1))
   fi
 fi

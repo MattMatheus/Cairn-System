@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  GO_VERSION: '1.22.12'
+  RELEASE_VERSION: 'azure-$(Build.BuildId)'
+
+steps:
+  - task: UseGoVersion@0
+    inputs:
+      version: '$(GO_VERSION)'
+
+  - script: ./tools/dev/bootstrap_platform.sh
+    displayName: Bootstrap platform
+
+  - script: ./products/athena-work/tools/run_doc_tests.sh
+    displayName: Run AthenaWork doc tests
+
+  - script: go test ./...
+    workingDirectory: $(Build.SourcesDirectory)/products/athena-use
+    displayName: Test AthenaUse
+
+  - script: go test ./...
+    workingDirectory: $(Build.SourcesDirectory)/products/athena-mind
+    displayName: Test AthenaMind
+
+  - script: ./tools/dev/build_release_artifacts.sh --version "$(RELEASE_VERSION)" --out-dir "$(Build.ArtifactStagingDirectory)"
+    displayName: Build release artifacts
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(RELEASE_VERSION)'
+      ArtifactName: 'athena-release-artifacts'
+      publishLocation: 'Container'

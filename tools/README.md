@@ -17,3 +17,4 @@ Product-specific scripts should remain with their owning product unless they are
 - active runtime validation lives under `tools/platform/`
 - local helper scripts live under `tools/dev/`
 - Azure/bootstrap artifact retrieval is intentionally deferred until the platform surface and tool contract are finalized
+- local bootstrap and release artifact creation now live under `tools/dev/`
