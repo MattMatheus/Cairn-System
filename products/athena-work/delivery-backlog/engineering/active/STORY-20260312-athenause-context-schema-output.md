@@ -3,10 +3,10 @@
 ## Metadata
 - `id`: STORY-20260312-athenause-context-schema-output
 - `owner_persona`: Product Manager - AthenaWork
-- `status`: intake
+- `status`: active
 - `idea_id`: direct
 - `phase`: v0.1
-- `adr_refs`: [ADR-0005, ADR-0006]
+- `adr_refs`: [ADR-0005, ADR-0006, ADR-0007]
 - `success_metric`: AthenaUse context output carries enough schema detail for downstream stage launch consumers without ad hoc parsing
 - `release_checkpoint`: deferred
 
@@ -38,4 +38,4 @@
 - Outcome of the tool interface specification decision
 
 ## Notes
-- Keep this in intake until the architecture decision on the formal tool interface spec is made.
+- Promoted after `ADR-0007` selected bounded context/schema shaping as the next approved AthenaUse slice.
