@@ -2,10 +2,10 @@
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+product_root="$(cd "$script_dir/.." && pwd)"
+source "$script_dir/lib/doc_test_harness.sh"
 
-contract="$root_dir/operating-system/contracts/WORKSPACE_API_STATE_MACHINE_V1.md"
+contract="$product_root/operating-system/contracts/WORKSPACE_API_STATE_MACHINE_V1.md"
 
 doc_test_init
 

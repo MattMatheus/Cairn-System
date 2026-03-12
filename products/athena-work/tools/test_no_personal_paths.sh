@@ -49,21 +49,23 @@ for path in "${target_paths[@]}"; do
 done
 
 failures=0
-for file in "${scan_files[@]}"; do
-  rel="${file#"$root_dir"/}"
-  if should_skip "$rel"; then
-    continue
-  fi
+if [[ ${#scan_files[@]} -gt 0 ]]; then
+  for file in "${scan_files[@]}"; do
+    rel="${file#"$root_dir"/}"
+    if should_skip "$rel"; then
+      continue
+    fi
 
-  if [[ ! "$file" =~ \.(md|sh|yml|yaml|toml|json|go)$ ]]; then
-    continue
-  fi
+    if [[ ! "$file" =~ \.(md|sh|yml|yaml|toml|json|go)$ ]]; then
+      continue
+    fi
 
-  if rg -q '/Users/|C:\\Users\\|/home/[A-Za-z0-9_.-]+/' "$file"; then
-    echo "FAIL: personal path detected in $rel"
-    failures=$((failures + 1))
-  fi
-done
+    if rg -q '/Users/|C:\\Users\\|/home/[A-Za-z0-9_.-]+/' "$file"; then
+      echo "FAIL: personal path detected in $rel"
+      failures=$((failures + 1))
+    fi
+  done
+fi
 
 if [[ "$failures" -gt 0 ]]; then
   echo "Result: FAIL ($failures files contain personal paths)"

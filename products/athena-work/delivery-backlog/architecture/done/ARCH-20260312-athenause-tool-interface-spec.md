@@ -3,7 +3,7 @@
 ## Metadata
 - `id`: ARCH-20260312-athenause-tool-interface-spec
 - `owner_persona`: Software Architect - Ada.md
-- `status`: intake
+- `status`: done
 - `idea_id`: direct
 - `phase`: v0.1
 - `adr_refs`: [ADR-0005, ADR-0006]
@@ -46,9 +46,9 @@
 - Check that the decision stays within AthenaUse v1 scope and does not implicitly authorize execution/runtime expansion.
 
 ## Intake Promotion Checklist (intake -> ready)
-- [ ] Decision scope is explicit and bounded.
-- [ ] Problem statement describes urgency and impact.
-- [ ] Required inputs are listed (ADRs, architecture docs, constraints).
-- [ ] Separation rule verified: architecture output, not implementation output.
-- [ ] Required outputs are concrete and reviewable in QA handoff.
-- [ ] Risks/tradeoffs include mitigation and owner.
+- [x] Decision scope is explicit and bounded.
+- [x] Problem statement describes urgency and impact.
+- [x] Required inputs are listed (ADRs, architecture docs, constraints).
+- [x] Separation rule verified: architecture output, not implementation output.
+- [x] Required outputs are concrete and reviewable in QA handoff.
+- [x] Risks/tradeoffs include mitigation and owner.

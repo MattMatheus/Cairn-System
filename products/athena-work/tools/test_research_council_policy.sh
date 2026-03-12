@@ -3,12 +3,13 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+product_root="$root_dir/products/athena-work"
+source "$script_dir/lib/doc_test_harness.sh"
 
-council_doc="$root_dir/knowledge-base/process/RESEARCH_COUNCIL_BASELINE.md"
-planning_prompt="$root_dir/stage-prompts/active/planning-seed-prompt.md"
-pm_prompt="$root_dir/stage-prompts/active/pm-refinement-seed-prompt.md"
-architect_prompt="$root_dir/stage-prompts/active/architect-agent-seed-prompt.md"
+council_doc="$root_dir/docs/operator/athena-work/process/RESEARCH_COUNCIL_BASELINE.md"
+planning_prompt="$product_root/stage-prompts/active/planning-seed-prompt.md"
+pm_prompt="$product_root/stage-prompts/active/pm-refinement-seed-prompt.md"
+architect_prompt="$product_root/stage-prompts/active/architect-agent-seed-prompt.md"
 
 doc_test_init
 

@@ -13,6 +13,12 @@ The planned interface should clarify how AthenaPlatform connects:
 - AthenaWork workflow actions
 - AthenaMind retrieval and write operations
 
+## Current Status
+
+This document remains a preparation artifact, not the next implementation contract.
+
+Per `ADR-0007`, AthenaPlatform should complete the bounded AthenaUse context/schema slice before promoting this prep document into a formal model/tool interface specification.
+
 ## Decisions To Capture
 
 - command surface or RPC shape

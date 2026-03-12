@@ -236,6 +236,18 @@ Recommended v1 fields:
 
 It should not emit full secret material or large transport templates by default.
 
+## Next Approved Slice
+
+After approved-registry expansion and shared-platform validation enforcement, the next approved AthenaUse implementation slice is:
+
+- stronger `context` schema shaping within the existing v1 boundary
+
+Deferred beyond that slice:
+
+- formal model/tool interface specification
+- execution/runtime contract work
+- full JSON Schema support
+
 ## Credential Handling
 
 AthenaUse never stores or emits credential values.
