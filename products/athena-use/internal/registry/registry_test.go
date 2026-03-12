@@ -3,6 +3,7 @@ package registry
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"athenause/internal/types"
@@ -96,5 +97,29 @@ func TestApprovedRegistryFileIsValid(t *testing.T) {
 	}
 	if len(reg.Tools) < 5 {
 		t.Fatalf("expected at least 5 approved tools, got %d", len(reg.Tools))
+	}
+
+	toolsByID := map[string]types.Tool{}
+	for _, tool := range reg.Tools {
+		toolsByID[tool.ID] = tool
+	}
+
+	verifyHealth, ok := toolsByID["athena.memory.verify_health"]
+	if !ok {
+		t.Fatalf("approved registry missing athena.memory.verify_health")
+	}
+	if len(verifyHealth.Schema) != 3 || strings.TrimSpace(verifyHealth.Schema[0].Description) == "" {
+		t.Fatalf("expected verify_health schema descriptions, got %+v", verifyHealth.Schema)
+	}
+
+	taskMetadata, ok := toolsByID["athena.workspace.validate_task_metadata"]
+	if !ok {
+		t.Fatalf("approved registry missing athena.workspace.validate_task_metadata")
+	}
+	if len(taskMetadata.Schema) != 2 {
+		t.Fatalf("expected task metadata schema entries, got %+v", taskMetadata.Schema)
+	}
+	if got := strings.Join(taskMetadata.Schema[0].Enum, ","); got != "changed,all" {
+		t.Fatalf("expected mode enum changed,all, got %q", got)
 	}
 }

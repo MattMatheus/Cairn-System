@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"athenause/internal/registry"
 	"athenause/internal/types"
 )
 
@@ -189,5 +190,84 @@ tools:
 	}
 	if !strings.Contains(text, "parameters:") || !strings.Contains(text, "name: root") || !strings.Contains(text, "required: true") {
 		t.Fatalf("expected parameters section in yaml output, got %s", text)
+	}
+}
+
+func TestApprovedRegistryContextIncludesRichParameterMetadata(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	approvedPath, _, err := registry.ResolvePaths(wd)
+	if err != nil {
+		t.Fatalf("resolve approved path: %v", err)
+	}
+
+	oldStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stdout = w
+	defer func() { os.Stdout = oldStdout }()
+
+	if err := runContext([]string{"--registry", approvedPath, "--stage", "engineering", "--format", "json"}); err != nil {
+		t.Fatalf("run context json against approved registry: %v", err)
+	}
+	_ = w.Close()
+	out, _ := io.ReadAll(r)
+
+	var payload struct {
+		ToolContext struct {
+			Tools []struct {
+				ID         string `json:"id"`
+				Parameters []struct {
+					Name        string   `json:"name"`
+					Description string   `json:"description"`
+					Enum        []string `json:"enum"`
+				} `json:"parameters"`
+			} `json:"tools"`
+		} `json:"tool_context"`
+	}
+	if err := json.Unmarshal(out, &payload); err != nil {
+		t.Fatalf("unmarshal approved context payload: %v\n%s", err, string(out))
+	}
+
+	toolsByID := map[string][]struct {
+		Name        string
+		Description string
+		Enum        []string
+	}{}
+	for _, tool := range payload.ToolContext.Tools {
+		params := make([]struct {
+			Name        string
+			Description string
+			Enum        []string
+		}, len(tool.Parameters))
+		for i, param := range tool.Parameters {
+			params[i] = struct {
+				Name        string
+				Description string
+				Enum        []string
+			}{
+				Name:        param.Name,
+				Description: param.Description,
+				Enum:        param.Enum,
+			}
+		}
+		toolsByID[tool.ID] = params
+	}
+
+	verifyHealth, ok := toolsByID["athena.memory.verify_health"]
+	if !ok || len(verifyHealth) == 0 || verifyHealth[0].Description == "" {
+		t.Fatalf("expected verify_health descriptions in approved context, got %+v", verifyHealth)
+	}
+
+	taskMetadata, ok := toolsByID["athena.workspace.validate_task_metadata"]
+	if !ok || len(taskMetadata) == 0 {
+		t.Fatalf("expected task metadata parameters in approved context, got %+v", taskMetadata)
+	}
+	if got := strings.Join(taskMetadata[0].Enum, ","); got != "changed,all" {
+		t.Fatalf("expected mode enum changed,all in approved context, got %q", got)
 	}
 }

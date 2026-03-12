@@ -23,12 +23,15 @@ tools:
       - name: root
         type: string
         required: true
+        description: Repo-local AthenaMind memory root to evaluate, typically under .athena/memory/
       - name: query
         type: string
         required: true
+        description: Health-check query used to verify retrieval can return the expected memory
       - name: domain
         type: string
         required: false
+        description: Optional domain filter when health should be checked against a narrower memory slice
   - id: athena.platform.smoke_mongodb
     name: Run Platform Mongo Smoke
     description: Exercises the optional Mongo-backed AthenaMind smoke path from the repo root
@@ -51,14 +54,23 @@ tools:
     schema: []
   - id: athena.workspace.validate_task_metadata
     name: Validate Workspace Task Metadata
-    description: Validates workspace task-note metadata for changed markdown files
+    description: Validates workspace task-note metadata for changed files or a full target directory scan
     tags: [athena, workspace, validation, metadata]
     stage_affinity: [engineering, qa, pm]
     credential: ""
     call:
       type: exec
-      command: ./tools/platform/validate_task_metadata.sh --changed
-    schema: []
+      command: ./tools/platform/validate_task_metadata.sh
+    schema:
+      - name: mode
+        type: string
+        required: false
+        description: Select whether to validate only changed markdown task notes or scan the full target directory
+        enum: [changed, all]
+      - name: target_dir
+        type: string
+        required: false
+        description: Optional workspace-relative or absolute directory to validate instead of the default workspace root
   - id: athena.go.check_toolchain
     name: Check Go Toolchain Readiness
     description: Verifies the installed Go toolchain satisfies the repo go.mod requirement
