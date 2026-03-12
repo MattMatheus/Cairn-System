@@ -29,3 +29,43 @@ tools:
       - name: domain
         type: string
         required: false
+  - id: athena.platform.smoke_mongodb
+    name: Run Platform Mongo Smoke
+    description: Exercises the optional Mongo-backed AthenaMind smoke path from the repo root
+    tags: [athena, platform, smoke, mongodb]
+    stage_affinity: [engineering, qa]
+    credential: ""
+    call:
+      type: exec
+      command: ./tools/platform/smoke_mongodb.sh
+    schema: []
+  - id: athena.docs.run_tests
+    name: Run AthenaWork Doc Tests
+    description: Runs the AthenaWork documentation and state-harness baseline test suite
+    tags: [athena, docs, validation]
+    stage_affinity: [engineering, qa, pm]
+    credential: ""
+    call:
+      type: exec
+      command: ./products/athena-work/tools/run_doc_tests.sh
+    schema: []
+  - id: athena.workspace.validate_task_metadata
+    name: Validate Workspace Task Metadata
+    description: Validates workspace task-note metadata for changed markdown files
+    tags: [athena, workspace, validation, metadata]
+    stage_affinity: [engineering, qa, pm]
+    credential: ""
+    call:
+      type: exec
+      command: ./tools/platform/validate_task_metadata.sh --changed
+    schema: []
+  - id: athena.go.check_toolchain
+    name: Check Go Toolchain Readiness
+    description: Verifies the installed Go toolchain satisfies the repo go.mod requirement
+    tags: [athena, go, validation, readiness]
+    stage_affinity: [engineering, qa]
+    credential: ""
+    call:
+      type: exec
+      command: ./products/athena-work/tools/check_go_toolchain.sh
+    schema: []

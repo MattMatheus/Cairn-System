@@ -75,3 +75,26 @@ func TestDiscoverScoresMatches(t *testing.T) {
 		t.Fatalf("unexpected discover result: %+v", got)
 	}
 }
+
+func TestApprovedRegistryFileIsValid(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	approvedPath, _, err := ResolvePaths(wd)
+	if err != nil {
+		t.Fatalf("resolve paths: %v", err)
+	}
+
+	reg, err := LoadFile(approvedPath, SupportTierApproved)
+	if err != nil {
+		t.Fatalf("load approved registry: %v", err)
+	}
+	if err := Validate(reg); err != nil {
+		t.Fatalf("validate approved registry: %v", err)
+	}
+	if len(reg.Tools) < 5 {
+		t.Fatalf("expected at least 5 approved tools, got %d", len(reg.Tools))
+	}
+}
