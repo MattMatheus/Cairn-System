@@ -3,11 +3,12 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+product_root="$root_dir/products/athena-work"
+source "$script_dir/lib/doc_test_harness.sh"
 
-rubric="$root_dir/delivery-backlog/QA_REGRESSION_RUBRIC.md"
-bug_template="$root_dir/delivery-backlog/engineering/intake/BUG_TEMPLATE.md"
-qa_prompt="$root_dir/stage-prompts/active/qa-agent-seed-prompt.md"
+rubric="$product_root/delivery-backlog/QA_REGRESSION_RUBRIC.md"
+bug_template="$product_root/delivery-backlog/engineering/intake/BUG_TEMPLATE.md"
+qa_prompt="$product_root/stage-prompts/active/qa-agent-seed-prompt.md"
 
 doc_test_init
 

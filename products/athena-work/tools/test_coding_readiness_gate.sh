@@ -3,15 +3,15 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
-checklist="$root_dir/product-research/roadmap/CODING_READINESS_GATE_CHECKLIST.md"
-decision="$root_dir/product-research/roadmap/CODING_READINESS_DECISION_2026-02-22.md"
-path_doc="$root_dir/knowledge-base/process/PRE_CODING_PATH.md"
+source "$script_dir/lib/doc_test_harness.sh"
+path_doc="$root_dir/docs/operator/athena-work/process/PRE_CODING_PATH.md"
+checklist="$root_dir/products/athena-work/operating-system/metrics/CODING_READINESS_GATE_CHECKLIST.md"
+decision="$root_dir/products/athena-work/operating-system/decisions/CODING_READINESS_DECISION_2026-02-22.md"
 
 assert_story_tracked() {
   local story="$1"
   local label="$2"
-  if [[ -f "$root_dir/delivery-backlog/engineering/active/$story" || -f "$root_dir/delivery-backlog/engineering/qa/$story" || -f "$root_dir/delivery-backlog/engineering/done/$story" ]]; then
+  if [[ -f "$root_dir/products/athena-work/delivery-backlog/engineering/active/$story" || -f "$root_dir/products/athena-work/delivery-backlog/engineering/qa/$story" || -f "$root_dir/products/athena-work/delivery-backlog/engineering/done/$story" ]]; then
     echo "PASS: $label"
   else
     echo "FAIL: $label"

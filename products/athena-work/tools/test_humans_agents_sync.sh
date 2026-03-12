@@ -12,29 +12,29 @@ fi
 
 # Files that define stage behavior and process rules.
 watched=(
-  "DEVELOPMENT_CYCLE.md"
-  "tools/launch_stage.sh"
-  "tools/run_observer_cycle.sh"
-  "operating-system/README.md"
-  "operating-system/observer/README.md"
-  "knowledge-base/process/STAGE_EXIT_GATES.md"
-  "knowledge-base/process/PROGRAM_OPERATING_SYSTEM.md"
-  "knowledge-base/process/README.md"
-  "delivery-backlog/engineering/intake/STORY_TEMPLATE.md"
-  "delivery-backlog/engineering/intake/BUG_TEMPLATE.md"
-  "delivery-backlog/architecture/intake/ARCH_STORY_TEMPLATE.md"
-  "stage-prompts/active/planning-seed-prompt.md"
-  "stage-prompts/active/next-agent-seed-prompt.md"
-  "stage-prompts/active/architect-agent-seed-prompt.md"
-  "stage-prompts/active/qa-agent-seed-prompt.md"
-  "stage-prompts/active/pm-refinement-seed-prompt.md"
-  "stage-prompts/active/cycle-seed-prompt.md"
+  "products/athena-work/DEVELOPMENT_CYCLE.md"
+  "products/athena-work/tools/launch_stage.sh"
+  "products/athena-work/tools/run_observer_cycle.sh"
+  "products/athena-work/operating-system/README.md"
+  "products/athena-work/operating-system/observer/README.md"
+  "docs/operator/athena-work/process/STAGE_EXIT_GATES.md"
+  "docs/operator/athena-work/process/PROGRAM_OPERATING_SYSTEM.md"
+  "docs/operator/athena-work/process/README.md"
+  "products/athena-work/delivery-backlog/engineering/intake/STORY_TEMPLATE.md"
+  "products/athena-work/delivery-backlog/engineering/intake/BUG_TEMPLATE.md"
+  "products/athena-work/delivery-backlog/architecture/intake/ARCH_STORY_TEMPLATE.md"
+  "products/athena-work/stage-prompts/active/planning-seed-prompt.md"
+  "products/athena-work/stage-prompts/active/next-agent-seed-prompt.md"
+  "products/athena-work/stage-prompts/active/architect-agent-seed-prompt.md"
+  "products/athena-work/stage-prompts/active/qa-agent-seed-prompt.md"
+  "products/athena-work/stage-prompts/active/pm-refinement-seed-prompt.md"
+  "products/athena-work/stage-prompts/active/cycle-seed-prompt.md"
 )
 
 # Files that must be touched when behavior changes.
 sync_targets=(
-  "HUMANS.md"
-  "AGENTS.md"
+  "products/athena-work/HUMANS.md"
+  "products/athena-work/AGENTS.md"
 )
 
 changed_files="$(git status --porcelain | sed -E 's/^.. //')"

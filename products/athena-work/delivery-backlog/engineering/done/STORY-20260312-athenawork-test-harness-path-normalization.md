@@ -3,7 +3,7 @@
 ## Metadata
 - `id`: STORY-20260312-athenawork-test-harness-path-normalization
 - `owner_persona`: Product Manager - AthenaWork
-- `status`: intake
+- `status`: done
 - `idea_id`: direct
 - `phase`: v0.1
 - `adr_refs`: [ADR-0004]

@@ -3,10 +3,10 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+source "$script_dir/lib/doc_test_harness.sh"
 
 readme="$root_dir/README.md"
-vision="$root_dir/knowledge-base/product/VISION.md"
+vision="$root_dir/docs/product/athena-work/product/VISION.md"
 
 doc_test_init
 
@@ -16,7 +16,7 @@ doc_assert_contains "$readme" "What v0.1 Delivers Today" "README includes curren
 doc_assert_contains "$readme" "go run ./cmd/state-harness tooling write" "README includes write example"
 doc_assert_contains "$readme" "go run ./cmd/state-harness tooling retrieve" "README includes retrieve example"
 doc_assert_contains "$readme" "product-research/roadmap/PHASED_IMPLEMENTATION_PLAN_V01_V03.md" "README links phased plan"
-doc_assert_contains "$readme" "knowledge-base/product/VISION.md" "README links preserved vision doc"
+doc_assert_contains "$readme" "docs/product/athena-work/product/VISION.md" "README links preserved vision doc"
 doc_assert_contains "$vision" "AthenaWork Product Vision (Long-Term)" "Vision document title present"
 
 for forbidden in "FAISS" "Podman" "SQLite" "embeddings" "cloud"; do

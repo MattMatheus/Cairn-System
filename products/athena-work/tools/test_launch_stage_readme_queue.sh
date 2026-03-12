@@ -3,11 +3,12 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-active_readme="$root_dir/delivery-backlog/engineering/active/README.md"
-launch_script="$root_dir/tools/launch_stage.sh"
-story_a="$root_dir/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-A.md"
-story_b="$root_dir/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-B.md"
-expected_story="delivery-backlog/engineering/active/STORY-TEST-README-ORDER-B.md"
+product_root="$root_dir/products/athena-work"
+active_readme="$product_root/delivery-backlog/engineering/active/README.md"
+launch_script="$script_dir/launch_stage.sh"
+story_a="$product_root/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-A.md"
+story_b="$product_root/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-B.md"
+expected_story="products/athena-work/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-B.md"
 current_branch="$(git -C "$root_dir" branch --show-current)"
 
 tmp_dir="$(mktemp -d)"

@@ -3,9 +3,10 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+product_root="$root_dir/products/athena-work"
+source "$script_dir/lib/doc_test_harness.sh"
 
-cycle_index="$root_dir/knowledge-base/process/CYCLE_INDEX.md"
+cycle_index="$root_dir/docs/operator/athena-work/process/CYCLE_INDEX.md"
 
 doc_test_init
 
@@ -18,7 +19,7 @@ doc_assert_contains "$cycle_index" "stage-prompts/active/pm-refinement-seed-prom
 doc_assert_contains "$cycle_index" "delivery-backlog/engineering/active/" "Cycle index links engineering backlog states"
 doc_assert_contains "$cycle_index" "delivery-backlog/architecture/active/" "Cycle index links architecture backlog states"
 doc_assert_contains "$cycle_index" "staff-personas/STAFF_DIRECTORY.md" "Cycle index links staff directory"
-doc_assert_contains "$cycle_index" "product-research/handoff.md" "Cycle index links handoff docs"
+doc_assert_contains "$cycle_index" "operating-system/handoff/" "Cycle index links handoff docs"
 doc_assert_contains "$cycle_index" "no stories" "Cycle index includes no-stories behavior"
 doc_assert_contains "$cycle_index" "expected '<required-branch>'" "Cycle index includes branch safety rule"
 

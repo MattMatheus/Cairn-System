@@ -2,9 +2,9 @@
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-eng_intake="$root_dir/delivery-backlog/engineering/intake"
-arch_intake="$root_dir/delivery-backlog/architecture/intake"
+product_root="$(cd "$script_dir/.." && pwd)"
+eng_intake="$product_root/delivery-backlog/engineering/intake"
+arch_intake="$product_root/delivery-backlog/architecture/intake"
 
 valid_story_status='intake|ready|active|qa|done|blocked'
 valid_bug_status='intake|ready|active|qa|done|blocked'

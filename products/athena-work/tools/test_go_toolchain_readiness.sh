@@ -3,13 +3,13 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
-howto_doc="$root_dir/knowledge-base/how-to/GO_TOOLCHAIN_SETUP.md"
-workflow_doc="$root_dir/knowledge-base/process/OPERATOR_DAILY_WORKFLOW.md"
+source "$script_dir/lib/doc_test_harness.sh"
+howto_doc="$root_dir/docs/operator/athena-work/how-to/GO_TOOLCHAIN_SETUP.md"
+workflow_doc="$root_dir/docs/operator/athena-work/process/OPERATOR_DAILY_WORKFLOW.md"
 
 doc_test_init
 
-doc_assert_exists "$root_dir/tools/check_go_toolchain.sh" "Go toolchain preflight script exists"
+doc_assert_exists "$script_dir/check_go_toolchain.sh" "Go toolchain preflight script exists"
 doc_assert_exists "$howto_doc" "Go setup how-to doc exists"
 doc_assert_contains "$howto_doc" 'Source of truth: `go.mod`' "How-to references go.mod as source of truth"
 doc_assert_contains "$howto_doc" "tools/check_go_toolchain.sh" "How-to references toolchain preflight command"
