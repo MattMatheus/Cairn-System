@@ -10,6 +10,9 @@ story_a="$product_root/delivery-backlog/engineering/active/STORY-TEST-README-ORD
 story_b="$product_root/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-B.md"
 expected_story="products/athena-work/delivery-backlog/engineering/active/STORY-TEST-README-ORDER-B.md"
 current_branch="$(git -C "$root_dir" branch --show-current)"
+if [[ -z "$current_branch" || "$current_branch" == "HEAD" ]]; then
+  current_branch="${BUILD_SOURCEBRANCHNAME:-main}"
+fi
 
 tmp_dir="$(mktemp -d)"
 restore_readme() {

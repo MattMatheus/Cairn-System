@@ -5,6 +5,9 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 platform_root="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/../../.." && pwd))"
 launch_script="$platform_root/products/athena-work/tools/launch_stage.sh"
 current_branch="$(git -C "$platform_root" branch --show-current)"
+if [[ -z "$current_branch" || "$current_branch" == "HEAD" ]]; then
+  current_branch="${BUILD_SOURCEBRANCHNAME:-main}"
+fi
 
 output="$(WORKSPACE_API_ENABLED=true WORKSPACE_API_CURL_BIN=missing-curl ATHENA_REQUIRED_BRANCH="$current_branch" "$launch_script" pm)"
 if grep -Fq "workspace_api_adapter:" <<<"$output" && grep -Fq "status: fallback" <<<"$output"; then
