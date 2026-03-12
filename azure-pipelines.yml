@@ -16,7 +16,7 @@ variables:
   RELEASE_VERSION: 'azure-$(Build.BuildId)'
 
 steps:
-  - task: UseGoVersion@0
+  - task: GoTool@0
     inputs:
       version: '$(GO_VERSION)'
 
