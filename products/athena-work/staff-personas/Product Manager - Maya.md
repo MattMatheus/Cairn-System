@@ -21,7 +21,7 @@ Ensure work solves the highest-value state-harness problems with clear acceptanc
 - Prioritized story artifact.
 - Acceptance criteria with measurable outcomes.
 - State transition recommendation.
-- Updated program board snapshot (`product-research/roadmap/PROGRAM_STATE_BOARD.md`).
+- Updated queue summary artifacts (`delivery-backlog/engineering/active/README.md` and related observer/read-model outputs).
 
 ## Workflow Template
 1. Clarify problem statement and target user outcome.

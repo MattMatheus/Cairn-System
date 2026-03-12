@@ -21,13 +21,13 @@ Keep queues and recommendations single-focus and avoid multi-level task blocks.
    - move misfiled `STORY-*`/`BUG-*` items to `delivery-backlog/engineering/intake/`;
    - rerun `tools/validate_intake_items.sh` until it passes.
 4. Refine each item into clear, actionable stories/bug cards.
-   - If a council artifact exists (`product-research/planning/sessions/COUNCIL-*.md`), translate recommendation into backlog-ready stories before ranking.
+   - If a council artifact exists (`workspace/research/planning/sessions/COUNCIL-*.md`), translate recommendation into backlog-ready stories before ranking.
 5. Rank and move refined items to `delivery-backlog/engineering/active/` in execution order.
    - Apply product-first weighting from `knowledge-base/process/BACKLOG_WEIGHTING_POLICY.md`.
    - Process stories may outrank product work only when a broken process is blocking delivery or gate enforcement.
 6. Update `delivery-backlog/engineering/active/README.md` Active Sequence.
    - Verify queue/order updates remain consistent with `delivery-backlog/STATE_TRANSITION_CHECKLIST.md`.
-7. Update `product-research/roadmap/PROGRAM_STATE_BOARD.md` queue counts and Now/Next items.
+7. Update queue truth in `delivery-backlog/engineering/active/README.md` and any observer/read-model artifacts touched by the cycle.
 8. Ensure active stories include traceability metadata (`idea_id`, `phase`, `adr_refs`, metric field).
 9. Update `stage-prompts/active/next-agent-seed-prompt.md` only if special launch instructions are needed.
 10. Run observer:

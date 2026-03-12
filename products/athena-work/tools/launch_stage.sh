@@ -161,7 +161,7 @@ launch: stage-prompts/active/planning-seed-prompt.md
 cycle: planning
 checklist:
   1) run an interactive idea-generation session with the human operator
-  2) capture structured notes in product-research/planning/sessions using the planning template
+  2) capture structured notes in workspace/research/planning/sessions using the planning template
   3) convert session output into intake stories (engineering and/or architecture) using canonical templates
   4) recommend next stage: architect (for decisions) and/or pm (for prioritization)
   5) run observer: tools/run_observer_cycle.sh --cycle-id <plan-id>

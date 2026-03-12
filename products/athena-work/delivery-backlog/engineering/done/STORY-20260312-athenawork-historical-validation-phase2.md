@@ -3,7 +3,7 @@
 ## Metadata
 - `id`: STORY-20260312-athenawork-historical-validation-phase2
 - `owner_persona`: Product Manager - AthenaWork
-- `status`: intake
+- `status`: done
 - `idea_id`: direct
 - `phase`: v0.1
 - `adr_refs`: [ADR-0004]
@@ -39,3 +39,4 @@
 
 ## Notes
 - This is follow-on cleanup after the canonical validation chain and active intake validator were repaired.
+- This cycle established an explicit validation-surface classification, repaired current workbench-facing tests and scripts, and left only clearly historical checks outside the active validation set.

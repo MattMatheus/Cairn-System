@@ -8,17 +8,22 @@ out_dir="${1:-$root_dir/.site}"
 rm -rf "$out_dir"
 mkdir -p "$out_dir"
 
-cp -R "$root_dir/website/athena-homepage/." "$out_dir/"
+if [[ -d "$root_dir/website/athena-homepage" ]]; then
+  cp -R "$root_dir/website/athena-homepage/." "$out_dir/"
+fi
 
 docs_root="$out_dir/docs"
 mkdir -p "$docs_root"
+mkdir -p "$docs_root/products/athena-work"
 
 cp "$root_dir/README.md" "$docs_root/README.md"
-cp "$root_dir/AGENTS.md" "$docs_root/AGENTS.md"
-cp "$root_dir/HUMANS.md" "$docs_root/HUMANS.md"
-cp "$root_dir/DEVELOPMENT_CYCLE.md" "$docs_root/DEVELOPMENT_CYCLE.md"
-cp -R "$root_dir/knowledge-base" "$docs_root/knowledge-base"
-cp -R "$root_dir/product-research/decisions" "$docs_root/decisions"
+cp "$root_dir/products/athena-work/AGENTS.md" "$docs_root/products/athena-work/AGENTS.md"
+cp "$root_dir/products/athena-work/HUMANS.md" "$docs_root/products/athena-work/HUMANS.md"
+cp "$root_dir/products/athena-work/DEVELOPMENT_CYCLE.md" "$docs_root/products/athena-work/DEVELOPMENT_CYCLE.md"
+cp -R "$root_dir/docs/decisions" "$docs_root/decisions"
+if [[ -d "$root_dir/knowledge-base" ]]; then
+  cp -R "$root_dir/knowledge-base" "$docs_root/knowledge-base"
+fi
 
 cat > "$docs_root/index.html" <<'HTML'
 <!doctype html>
@@ -99,11 +104,11 @@ cat > "$docs_root/index.html" <<'HTML'
       <p>Published docs site for Athena. Canonical source remains markdown in git.</p>
       <div class="grid">
         <div class="card"><a href="./README.md">Repository README</a></div>
-        <div class="card"><a href="./HUMANS.md">Operator Guide (HUMANS)</a></div>
-        <div class="card"><a href="./DEVELOPMENT_CYCLE.md">Development Cycle</a></div>
-        <div class="card"><a href="./AGENTS.md">Agent Guide (AGENTS)</a></div>
-        <div class="card"><a href="./knowledge-base/INDEX.md">Knowledge Base Index</a></div>
+        <div class="card"><a href="./products/athena-work/HUMANS.md">AthenaWork Operator Guide</a></div>
+        <div class="card"><a href="./products/athena-work/DEVELOPMENT_CYCLE.md">AthenaWork Development Cycle</a></div>
+        <div class="card"><a href="./products/athena-work/AGENTS.md">AthenaWork Agent Guide</a></div>
         <div class="card"><a href="./decisions/">Decision Records (ADRs)</a></div>
+        <div class="card"><a href="./decisions/README.md">Decision Index</a></div>
       </div>
       <p class="note">
         Source-of-truth policy: update docs in this repository, then publish through CI.

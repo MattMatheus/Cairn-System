@@ -31,13 +31,13 @@ CORE_DOCS_INDEX = [
         "id": "stage-exit-gates",
         "title": "Stage Exit Gates",
         "summary": "Criteria for planning, PM, engineering, and QA exits.",
-        "path": "knowledge-base/process/STAGE_EXIT_GATES.md",
+        "path": "docs/operator/athena-work/process/STAGE_EXIT_GATES.md",
     },
     {
         "id": "local-control-quickstart",
         "title": "Local Control Plane Quickstart",
         "summary": "Runbook for starting and validating local workspace services.",
-        "path": "knowledge-base/operations/LOCAL_CONTROL_PLANE_QUICKSTART.md",
+        "path": "docs/operator/athena-work/operations/LOCAL_CONTROL_PLANE_QUICKSTART.md",
     },
 ]
 INGEST_TOOL = "/workspace/products/athena-work/tools/ingest_artifact_bundle.sh"
@@ -572,7 +572,7 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        out_dir = Path("/workspace/product-research/planning/sessions")
+        out_dir = Path("/workspace/workspace/research/planning/sessions")
         out_dir.mkdir(parents=True, exist_ok=True)
         out_path = out_dir / f"PLAN-WORKBENCH-{ts}.md"
         out_path.write_text(

@@ -18,7 +18,7 @@ Record selection in handoff output and keep checklist length to max 5 actions pe
 ## Architect Cycle (Mandatory)
 1. Read the selected story and restate architecture decision scope.
 2. Update architecture artifacts and/or ADRs needed to satisfy acceptance criteria.
-   - If available, consume `product-research/planning/sessions/COUNCIL-*.md` recommendations and record accepted/rejected options.
+   - If available, consume `workspace/research/planning/sessions/COUNCIL-*.md` recommendations and record accepted/rejected options.
 3. Validate consistency with accepted ADR constraints and state-harness scope.
 4. Run docs validation (`tools/run_doc_tests.sh`) plus any story-specific tests.
 5. Add explicit follow-on implementation story paths for each accepted decision.

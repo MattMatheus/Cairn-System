@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+source "$root_dir/products/athena-work/tools/lib/doc_test_harness.sh"
 
 ui_file="$root_dir/products/athena-work/ui/index.html"
 api_file="$root_dir/products/athena-work/ui/local_control_plane_api.py"
@@ -25,6 +25,7 @@ doc_assert_contains "$ui_file" "What happens next" "UI includes explicit next-st
 
 doc_assert_contains "$api_file" "/api/v1/planning/export" "API exposes planning export endpoint"
 doc_assert_contains "$api_file" "PLAN-WORKBENCH-" "Export writes planning artifacts"
+doc_assert_contains "$api_file" "/workspace/workspace/research/planning/sessions" "Export writes planning artifacts to the workspace research area"
 doc_assert_contains "$api_file" "direction, constraints, risks, and next_stage are required" "Export endpoint validates required fields"
 
 doc_test_finish

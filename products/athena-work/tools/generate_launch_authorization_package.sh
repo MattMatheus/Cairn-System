@@ -9,23 +9,46 @@ created_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 short_sha="$(git -C "$root_dir" rev-parse --short HEAD)"
 branch="$(git -C "$root_dir" rev-parse --abbrev-ref HEAD)"
 
-program_board="$root_dir/product-research/roadmap/PROGRAM_STATE_BOARD.md"
+eng_active_dir="$root_dir/products/athena-work/delivery-backlog/engineering/active"
+eng_intake_dir="$root_dir/products/athena-work/delivery-backlog/engineering/intake"
+eng_qa_readme="$root_dir/products/athena-work/delivery-backlog/engineering/qa/README.md"
 release_bundle="$root_dir/products/athena-work/operating-system/handoff/RELEASE_BUNDLE_v0.1-initial-2026-02-22.md"
 runtime_state_file="${ATHENA_RUNTIME_STATE_FILE:-$root_dir/products/athena-work/operating-system/state/runtime/backend_read_model_v1.local.json}"
 state_file="$root_dir/products/athena-work/operating-system/state/backend_read_model_v1.json"
 
-extract_count() {
-  local key="$1"
-  sed -n "s/^[[:space:]]*-[[:space:]]*\`$key\`:[[:space:]]*\([0-9][0-9]*\).*/\1/p" "$program_board"
+count_matching_files() {
+  local dir="$1"
+  local include_pattern="$2"
+  local exclude_pattern="${3:-}"
+  if [[ ! -d "$dir" ]]; then
+    printf '0'
+    return 0
+  fi
+  if [[ -n "$exclude_pattern" ]]; then
+    find "$dir" -maxdepth 1 -type f -name "$include_pattern" ! -name "$exclude_pattern" | wc -l | tr -d ' '
+    return 0
+  fi
+  find "$dir" -maxdepth 1 -type f -name "$include_pattern" | wc -l | tr -d ' '
 }
 
-engineering_active_count="$(extract_count engineering_active_count)"
-engineering_intake_count="$(extract_count engineering_intake_count)"
-engineering_qa_count="$(extract_count engineering_qa_count)"
+count_queue_readme_entries() {
+  local path="$1"
+  if [[ ! -f "$path" ]]; then
+    printf '0'
+    return 0
+  fi
+  awk '
+    /^## QA Sequence$/ { in_section=1; next }
+    /^## / && in_section { in_section=0 }
+    in_section && /^[0-9]+\.[[:space:]]+`?[^`]+`?/ { count++ }
+    in_section && /^-[[:space:]]+`?[^`]+`?/ && $0 !~ /\(empty\)/ { count++ }
+    END { print count + 0 }
+  ' "$path"
+}
 
-if [[ -z "$engineering_active_count" ]]; then engineering_active_count=0; fi
-if [[ -z "$engineering_intake_count" ]]; then engineering_intake_count=0; fi
-if [[ -z "$engineering_qa_count" ]]; then engineering_qa_count=0; fi
+engineering_active_count="$(count_matching_files "$eng_active_dir" '*.md' 'README.md')"
+engineering_intake_count="$(count_matching_files "$eng_intake_dir" '*.md' '*TEMPLATE*')"
+engineering_qa_count="$(count_queue_readme_entries "$eng_qa_readme")"
 
 test_doc_status="unknown"
 if "$root_dir/products/athena-work/tools/test_workspace_ui_read_only_board_v1.sh" >/dev/null 2>&1; then

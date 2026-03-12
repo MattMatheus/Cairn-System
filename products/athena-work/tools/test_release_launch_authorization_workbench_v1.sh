@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+source "$root_dir/products/athena-work/tools/lib/doc_test_harness.sh"
 
 api_file="$root_dir/products/athena-work/ui/local_control_plane_api.py"
 ui_file="$root_dir/products/athena-work/ui/index.html"

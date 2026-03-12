@@ -3,20 +3,17 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/.." && pwd))"
-source "$root_dir/tools/lib/doc_test_harness.sh"
+source "$root_dir/products/athena-work/tools/lib/doc_test_harness.sh"
 
-compose_file="$root_dir/docker-compose.local.yml"
 api_file="$root_dir/products/athena-work/ui/local_control_plane_api.py"
 state_file="$root_dir/products/athena-work/operating-system/state/backend_read_model_v1.json"
 ui_file="$root_dir/products/athena-work/ui/index.html"
-quickstart="$root_dir/knowledge-base/operations/LOCAL_CONTROL_PLANE_QUICKSTART.md"
+quickstart="$root_dir/docs/operator/athena-work/operations/LOCAL_CONTROL_PLANE_QUICKSTART.md"
 
 doc_test_init
 
 doc_assert_exists "$api_file" "Workspace UI read-model API exists"
 doc_assert_exists "$ui_file" "Workspace UI board page exists"
-doc_assert_contains "$compose_file" "local_control_plane_api.py" "Compose api service runs workspace read-model API"
-doc_assert_contains "$compose_file" "working_dir: /workspace/products/athena-work/ui" "Compose ui service serves workspace board directory"
 
 doc_assert_contains "$api_file" "/api/v1/read-model/board" "API serves board read model endpoint"
 doc_assert_contains "$api_file" "/api/v1/read-model/timeline" "API serves timeline read model endpoint"

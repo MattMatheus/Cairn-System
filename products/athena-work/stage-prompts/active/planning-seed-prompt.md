@@ -14,7 +14,7 @@ Keep planning views high-clarity and keep active checklist sections to 5 items m
 
 ## Planning Cycle (Mandatory)
 1. Start a structured conversation to capture goals, users, constraints, risks, and success metrics.
-2. Record notes in a new file under `product-research/planning/sessions/` using `product-research/planning/PLANNING_SESSION_TEMPLATE.md`.
+2. Record notes in a new file under `workspace/research/planning/sessions/` using `workspace/research/planning/PLANNING_SESSION_TEMPLATE.md`.
 3. Classify each proposed idea:
    - Implementation work -> create story in `delivery-backlog/engineering/intake/` using `delivery-backlog/engineering/intake/STORY_TEMPLATE.md`.
    - Architecture/ADR decision work -> create story in `delivery-backlog/architecture/intake/` using `delivery-backlog/architecture/intake/ARCH_STORY_TEMPLATE.md`.
@@ -26,7 +26,7 @@ Keep planning views high-clarity and keep active checklist sections to 5 items m
 7. If Research Council is used:
    - run explicit `explorer`, `skeptic`, `synthesizer` roles;
    - keep options <= 3 and timebox <= 90 minutes;
-   - create `product-research/planning/sessions/COUNCIL-<YYYYMMDD>-<slug>.md`.
+   - create `workspace/research/planning/sessions/COUNCIL-<YYYYMMDD>-<slug>.md`.
 8. Council/spec updates are allowed only under explicit human direction confirmation evidence (`ATHENA_DIRECTION_CONFIRMATION_ID`).
 9. Run observer and capture cycle delta:
    - `tools/run_observer_cycle.sh --cycle-id <plan-id>`
