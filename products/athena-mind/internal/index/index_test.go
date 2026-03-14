@@ -217,3 +217,49 @@ func TestUpsertEntryEnablesSQLiteWAL(t *testing.T) {
 		t.Fatalf("expected WAL journal mode, got %q", got)
 	}
 }
+
+func TestUpsertEntrySupportsNoteType(t *testing.T) {
+	root := t.TempDir()
+	policy := types.WritePolicyDecision{
+		Decision: "approved",
+		Reviewer: "qa",
+		Notes:    "ok",
+		Reason:   "test",
+		Risk:     "low",
+	}
+	err := UpsertEntry(root, types.UpsertEntryInput{
+		ID:         "decision-1",
+		Title:      "Decision 1",
+		Type:       "note",
+		Domain:     "research",
+		Body:       "Body",
+		Stage:      "pm",
+		SourceRef:  "/tmp/source.md",
+		SourceKind: "obsidian-note",
+		SourceType: "decision",
+	}, policy)
+	if err != nil {
+		t.Fatalf("UpsertEntry note failed: %v", err)
+	}
+
+	idx, err := LoadIndex(root)
+	if err != nil {
+		t.Fatalf("LoadIndex failed: %v", err)
+	}
+	if len(idx.Entries) != 1 {
+		t.Fatalf("expected one entry, got %d", len(idx.Entries))
+	}
+	if idx.Entries[0].Type != "note" || idx.Entries[0].Path != "notes/research/decision-1.md" {
+		t.Fatalf("unexpected note entry: %+v", idx.Entries[0])
+	}
+
+	metaPath := filepath.Join(root, "metadata", "decision-1.yaml")
+	data, err := os.ReadFile(metaPath)
+	if err != nil {
+		t.Fatalf("read metadata: %v", err)
+	}
+	text := string(data)
+	if !strings.Contains(text, "\"source_ref\": \"/tmp/source.md\"") || !strings.Contains(text, "\"source_kind\": \"obsidian-note\"") {
+		t.Fatalf("expected provenance metadata, got %s", text)
+	}
+}

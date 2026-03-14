@@ -2,18 +2,21 @@
 
 Slim AthenaMind product within AthenaPlatform.
 
-## Current V1 Baseline
+## Product Posture
 
-- markdown-first ingestion from AthenaWork content
-- `sqlite` as the default backend
-- optional MongoDB-backed index and embedding persistence is available for advanced local developer use
-- Go CLI as the primary integration surface
+AthenaMind should first succeed as a useful local memory tool for everyday work.
 
-## Current Status
+The default product posture is:
 
-The imported AthenaMind module is buildable and testable inside `AthenaPlatform`.
+- markdown-first ingestion
+- local-first runtime
+- `sqlite` as the default storage path
+- Go CLI as the main interface
+- small, dependable command surface before advanced retrieval infrastructure
 
-Preferred v1 usage is the local sqlite-first path through:
+## Preferred V1 Path
+
+The practical v1 path is the local sqlite-first workflow:
 
 - `write`
 - `retrieve`
@@ -21,14 +24,25 @@ Preferred v1 usage is the local sqlite-first path through:
 - `verify`
 - `snapshot`
 
-Current MongoDB readiness can be checked through:
+Within that small surface, `write` may store prompts, instructions, or curated notes promoted from the Athena vault.
 
-- `verify mongodb`
+These commands are the default operating story for AthenaMind inside AthenaPlatform.
 
-Optional MongoDB-backed runtime can be enabled through environment:
+The platform CLI is intentionally stripped to this small command surface.
 
-- `ATHENA_INDEX_BACKEND=mongodb`
-- `ATHENA_MONGODB_URI=...`
-- `ATHENA_MONGODB_DATABASE=athenamind`
+## OpenTelemetry
 
-Additional historical commands remain present in the imported module, but they are not the primary product posture for the unified platform.
+OpenTelemetry remains required for AthenaMind and should stay wired into the CLI and supporting systems.
+
+- command execution should continue to emit spans and telemetry events
+- simplification should not remove OTel initialization or tracing hooks
+- broader platform systems should keep using the same telemetry posture
+
+## Research Boundary
+
+The broader AthenaMind research repo may continue to carry experimental commands, alternate backends, and deeper evaluation surfaces.
+
+## Integration Notes
+
+- AthenaMind in AthenaPlatform is a productized subset, not the full AthenaMind research repo.
+- Research-heavy docs, publication scaffolding, and broader experimentation surfaces may inform future work, but they should not define the default mental model for this product.

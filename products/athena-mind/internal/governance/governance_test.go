@@ -19,14 +19,14 @@ func TestEnforceWritePolicyRequiresReviewer(t *testing.T) {
 	}
 }
 
-func TestIsLatencyDegradedDefaultsTo700Ms(t *testing.T) {
+func TestIsLatencyDegradedDefaultsTo1500Ms(t *testing.T) {
 	t.Setenv("MEMORY_CONSTRAINT_LATENCY_P95_RETRIEVAL_MS", "")
 	t.Setenv("MEMORY_CONSTRAINT_FORCE_LATENCY_DEGRADED", "")
-	if IsLatencyDegraded(699) {
-		t.Fatal("expected 699ms to stay below default latency degradation threshold")
+	if IsLatencyDegraded(1499) {
+		t.Fatal("expected 1499ms to stay below default latency degradation threshold")
 	}
-	if !IsLatencyDegraded(701) {
-		t.Fatal("expected 701ms to exceed default latency degradation threshold")
+	if !IsLatencyDegraded(1501) {
+		t.Fatal("expected 1501ms to exceed default latency degradation threshold")
 	}
 }
 

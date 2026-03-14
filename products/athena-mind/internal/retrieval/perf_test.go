@@ -44,7 +44,7 @@ func BenchmarkRetrieveClassicColdCache(b *testing.B) {
 			"perf",
 			"http://127.0.0.1:1",
 			"",
-			RetrieveOptions{Mode: "classic", Backend: "sqlite", TopK: 5},
+			RetrieveOptions{Mode: "classic", TopK: 5},
 		); err != nil {
 			b.Fatalf("retrieve failed: %v", err)
 		}
@@ -61,7 +61,7 @@ func BenchmarkRetrieveClassicWarmCache(b *testing.B) {
 		"perf",
 		"http://127.0.0.1:1",
 		"",
-		RetrieveOptions{Mode: "classic", Backend: "sqlite", TopK: 5},
+		RetrieveOptions{Mode: "classic", TopK: 5},
 	); err != nil {
 		b.Fatalf("warmup retrieve failed: %v", err)
 	}
@@ -74,7 +74,7 @@ func BenchmarkRetrieveClassicWarmCache(b *testing.B) {
 			"perf",
 			"http://127.0.0.1:1",
 			"",
-			RetrieveOptions{Mode: "classic", Backend: "sqlite", TopK: 5},
+			RetrieveOptions{Mode: "classic", TopK: 5},
 		); err != nil {
 			b.Fatalf("retrieve failed: %v", err)
 		}

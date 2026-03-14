@@ -1,10 +1,6 @@
 package retrieval
 
 import (
-	"encoding/json"
-	"os"
-	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -74,58 +70,5 @@ func Bootstrap(root, repo, sessionID, scenario string) (types.BootstrapPayload, 
 		}
 	}
 
-	if ep := loadLatestEpisode(root, repo, scenario); ep != nil {
-		payload.Episode = ep
-	}
-
 	return payload, nil
-}
-
-func loadLatestEpisode(root, repo, scenario string) *types.EpisodeContext {
-	repoKey := normalizeKey(repo)
-	scenarioKey := normalizeKey(scenario)
-	paths := []string{
-		filepath.Join(root, "episodes", repoKey, scenarioKey, "latest.json"),
-		filepath.Join(root, "episodes", repoKey, "latest.json"),
-	}
-	for _, path := range paths {
-		ep := loadEpisodeAtPath(path)
-		if ep == nil {
-			continue
-		}
-		if strings.TrimSpace(ep.Repo) == "" {
-			ep.Repo = strings.TrimSpace(repo)
-		}
-		if strings.TrimSpace(ep.Scenario) == "" {
-			ep.Scenario = strings.TrimSpace(scenario)
-		}
-		return ep
-	}
-	return nil
-}
-
-func loadEpisodeAtPath(path string) *types.EpisodeContext {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
-	var ep types.EpisodeContext
-	if err := json.Unmarshal(data, &ep); err != nil {
-		return nil
-	}
-	return &ep
-}
-
-func normalizeKey(v string) string {
-	v = strings.TrimSpace(strings.ToLower(v))
-	if v == "" {
-		return "unknown"
-	}
-	re := regexp.MustCompile(`[^a-z0-9._-]+`)
-	out := re.ReplaceAllString(v, "-")
-	out = strings.Trim(out, "-")
-	if out == "" {
-		return "unknown"
-	}
-	return out
 }

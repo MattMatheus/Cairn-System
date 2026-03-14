@@ -17,4 +17,3 @@ Use this section when you want to run AthenaPlatform, not analyze its migration 
 ## Notes
 
 - Repo-local runtime state should live under `.athena/`.
-- Historical migration documents live under `docs/migration/` and are not primary operator docs.

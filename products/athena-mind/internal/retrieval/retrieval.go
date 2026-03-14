@@ -1,12 +1,9 @@
 package retrieval
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -28,7 +25,6 @@ type candidate struct {
 	Score     float64
 	Lexical   float64
 	Embedding float64
-	Backend   float64
 	Fused     float64
 	Reason    string
 	Freshness float64
@@ -44,11 +40,6 @@ type RetrieveOptions struct {
 	TopK int
 	// RRFK controls reciprocal-rank fusion smoothing constant.
 	RRFK float64
-	// Backend controls experimental retrieval backend:
-	// - "sqlite" (default): local-only scoring
-	// - "qdrant": external vector score boost
-	// - "neo4j": reserved graph backend (placeholder)
-	Backend string
 }
 
 type cachedCandidates struct {
@@ -105,20 +96,10 @@ func normalizeRetrieveOptions(options RetrieveOptions) RetrieveOptions {
 	if rrfK <= 0 {
 		rrfK = 60.0
 	}
-	backend := strings.ToLower(strings.TrimSpace(options.Backend))
-	switch backend {
-	case "", "sqlite", "qdrant", "neo4j":
-	default:
-		backend = "sqlite"
-	}
-	if backend == "" {
-		backend = "sqlite"
-	}
 	return RetrieveOptions{
-		Mode:    mode,
-		TopK:    topK,
-		RRFK:    rrfK,
-		Backend: backend,
+		Mode: mode,
+		TopK: topK,
+		RRFK: rrfK,
 	}
 }
 
@@ -229,27 +210,14 @@ func RetrieveWithOptionsAndEndpointAndSession(
 		warnings = append(warnings, "embedding unavailable for candidate entries; using token-overlap scoring")
 	}
 
-	backendWarning := applyExperimentalBackendScores(&candidates, queryEmbedding, options)
-	if strings.TrimSpace(backendWarning) != "" {
-		warnings = append(warnings, backendWarning)
-	}
-	if options.Backend != "sqlite" {
-		for i := range candidates {
-			if candidates[i].Backend > 0 {
-				// Keep backend contribution modest in classic scoring.
-				candidates[i].Score += 0.05 * candidates[i].Backend
-			}
-		}
-	}
-
 	if options.Mode == "hybrid" {
 		hybrid := append([]candidate(nil), candidates...)
-		assignHybridFusedScores(hybrid, options.RRFK, options.Backend)
+		assignHybridFusedScores(hybrid, options.RRFK)
 		sortByHybridScore(hybrid)
 
 		// When all signal scores are zero, retain legacy deterministic fallback behavior.
 		top := hybrid[0]
-		if top.Lexical <= 0 && top.Embedding <= 0 && top.Backend <= 0 {
+		if top.Lexical <= 0 && top.Embedding <= 0 {
 			for i := range hybrid {
 				hybrid[i].Score = hybrid[i].Lexical
 			}
@@ -268,7 +236,7 @@ func RetrieveWithOptionsAndEndpointAndSession(
 			return result, joinWarnings(warnings), nil
 		}
 
-		semanticHit := top.Lexical > 0 || top.Embedding > 0 || top.Backend > 0
+		semanticHit := top.Lexical > 0 || top.Embedding > 0
 		result := types.RetrieveResult{
 			SelectedID:    top.Entry.ID,
 			SelectionMode: "hybrid_rrf",
@@ -367,7 +335,7 @@ func RetrieveWithOptionsAndEndpointAndSession(
 	}, joinWarnings(warnings), nil
 }
 
-func assignHybridFusedScores(candidates []candidate, k float64, backend string) {
+func assignHybridFusedScores(candidates []candidate, k float64) {
 	lexical := append([]candidate(nil), candidates...)
 	sort.SliceStable(lexical, func(i, j int) bool {
 		if lexical[i].Lexical == lexical[j].Lexical {
@@ -397,35 +365,12 @@ func assignHybridFusedScores(candidates []candidate, k float64, backend string) 
 		embeddingRank[c.Entry.ID] = i + 1
 	}
 
-	backendRank := map[string]int{}
-	if backend != "sqlite" {
-		backendCandidates := make([]candidate, 0, len(candidates))
-		for _, c := range candidates {
-			if c.Backend > 0 {
-				backendCandidates = append(backendCandidates, c)
-			}
-		}
-		sort.SliceStable(backendCandidates, func(i, j int) bool {
-			if backendCandidates[i].Backend == backendCandidates[j].Backend {
-				return backendCandidates[i].Entry.Path < backendCandidates[j].Entry.Path
-			}
-			return backendCandidates[i].Backend > backendCandidates[j].Backend
-		})
-		backendRank = make(map[string]int, len(backendCandidates))
-		for i, c := range backendCandidates {
-			backendRank[c.Entry.ID] = i + 1
-		}
-	}
-
 	for i := range candidates {
 		fused := 0.0
 		if rank, ok := lexicalRank[candidates[i].Entry.ID]; ok {
 			fused += 1.0 / (k + float64(rank))
 		}
 		if rank, ok := embeddingRank[candidates[i].Entry.ID]; ok {
-			fused += 1.0 / (k + float64(rank))
-		}
-		if rank, ok := backendRank[candidates[i].Entry.ID]; ok {
 			fused += 1.0 / (k + float64(rank))
 		}
 		candidates[i].Fused = fused
@@ -469,7 +414,6 @@ func toRetrieveCandidates(candidates []candidate, mode string, topK int) []types
 			Confidence:     conf,
 			LexicalScore:   c.Lexical,
 			EmbeddingScore: c.Embedding,
-			BackendScore:   c.Backend,
 			FusedScore:     c.Fused,
 			HasVector:      c.HasVector,
 			Reason:         c.Reason,
@@ -550,280 +494,6 @@ func embeddingCacheKey(root, updatedAt string, candidates []candidate) string {
 	}
 	sort.Strings(ids)
 	return fmt.Sprintf("%s|%s|%s", root, updatedAt, strings.Join(ids, ","))
-}
-
-func applyExperimentalBackendScores(candidates *[]candidate, queryEmbedding []float64, options RetrieveOptions) string {
-	if options.Backend == "" || options.Backend == "sqlite" {
-		return ""
-	}
-	if options.Backend == "neo4j" {
-		boosts, err := fetchNeo4jScores(*candidates)
-		if err != nil {
-			return fmt.Sprintf("neo4j backend unavailable; using sqlite scoring: %v", err)
-		}
-		for i := range *candidates {
-			if score, ok := boosts[(*candidates)[i].Entry.ID]; ok {
-				(*candidates)[i].Backend = score
-				if (*candidates)[i].Reason == "" {
-					(*candidates)[i].Reason = "neo4j_graph_score"
-				} else {
-					(*candidates)[i].Reason = (*candidates)[i].Reason + "+neo4j"
-				}
-			}
-		}
-		return ""
-	}
-	if options.Backend != "qdrant" {
-		return "unknown retrieval backend requested; using sqlite scoring"
-	}
-	if len(queryEmbedding) == 0 {
-		return "qdrant backend skipped: query embedding unavailable"
-	}
-
-	boosts, err := fetchQdrantScores(queryEmbedding, len(*candidates))
-	if err != nil {
-		return fmt.Sprintf("qdrant backend unavailable; using sqlite scoring: %v", err)
-	}
-
-	for i := range *candidates {
-		if score, ok := boosts[(*candidates)[i].Entry.ID]; ok {
-			(*candidates)[i].Backend = score
-			if (*candidates)[i].Reason == "" {
-				(*candidates)[i].Reason = "qdrant_vector_score"
-			} else {
-				(*candidates)[i].Reason = (*candidates)[i].Reason + "+qdrant"
-			}
-		}
-	}
-	return ""
-}
-
-func fetchQdrantScores(queryEmbedding []float64, limit int) (map[string]float64, error) {
-	if limit <= 0 {
-		limit = 10
-	}
-	baseURL := strings.TrimSpace(os.Getenv("ATHENA_QDRANT_URL"))
-	if baseURL == "" {
-		baseURL = "http://localhost:6333"
-	}
-	collection := strings.TrimSpace(os.Getenv("ATHENA_QDRANT_COLLECTION"))
-	if collection == "" {
-		collection = "athena_memories"
-	}
-
-	payload := map[string]any{
-		"vector":       queryEmbedding,
-		"limit":        limit,
-		"with_payload": true,
-		"with_vectors": false,
-	}
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return nil, err
-	}
-
-	url := strings.TrimRight(baseURL, "/") + "/collections/" + collection + "/points/search"
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	if key := strings.TrimSpace(os.Getenv("ATHENA_QDRANT_API_KEY")); key != "" {
-		req.Header.Set("api-key", key)
-	}
-
-	client := &http.Client{Timeout: 1200 * time.Millisecond}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		data, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
-		msg := strings.TrimSpace(string(data))
-		if msg == "" {
-			msg = resp.Status
-		}
-		return nil, fmt.Errorf("status %d: %s", resp.StatusCode, msg)
-	}
-
-	var parsed struct {
-		Result []struct {
-			ID      any            `json:"id"`
-			Score   float64        `json:"score"`
-			Payload map[string]any `json:"payload"`
-		} `json:"result"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
-		return nil, err
-	}
-	if len(parsed.Result) == 0 {
-		return map[string]float64{}, nil
-	}
-
-	maxScore := 0.0
-	for _, item := range parsed.Result {
-		if item.Score > maxScore {
-			maxScore = item.Score
-		}
-	}
-	if maxScore <= 0 {
-		maxScore = 1.0
-	}
-
-	out := make(map[string]float64, len(parsed.Result))
-	for _, item := range parsed.Result {
-		id := qdrantPointID(item.ID, item.Payload)
-		if id == "" {
-			continue
-		}
-		out[id] = item.Score / maxScore
-	}
-	return out, nil
-}
-
-func fetchNeo4jScores(candidates []candidate) (map[string]float64, error) {
-	baseURL := strings.TrimSpace(os.Getenv("ATHENA_NEO4J_HTTP_URL"))
-	if baseURL == "" {
-		baseURL = "http://localhost:7474"
-	}
-	user := strings.TrimSpace(os.Getenv("ATHENA_NEO4J_USER"))
-	if user == "" {
-		user = "neo4j"
-	}
-	pass := strings.TrimSpace(os.Getenv("ATHENA_NEO4J_PASSWORD"))
-	if pass == "" {
-		pass = "devpassword"
-	}
-	dbName := strings.TrimSpace(os.Getenv("ATHENA_NEO4J_DATABASE"))
-	if dbName == "" {
-		dbName = "neo4j"
-	}
-
-	ids := make([]string, 0, len(candidates))
-	for _, c := range candidates {
-		ids = append(ids, c.Entry.ID)
-	}
-	stmt := map[string]any{
-		"statement": `
-UNWIND $ids AS id
-OPTIONAL MATCH (m {entry_id: id})-[r:RELATED_TO]-(:Memory)
-RETURN id, count(r) AS degree
-`,
-		"parameters": map[string]any{"ids": ids},
-	}
-	reqBody := map[string]any{"statements": []any{stmt}}
-	body, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, err
-	}
-
-	url := strings.TrimRight(baseURL, "/") + "/db/" + dbName + "/tx/commit"
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(user, pass)
-
-	client := &http.Client{Timeout: 1200 * time.Millisecond}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		data, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
-		msg := strings.TrimSpace(string(data))
-		if msg == "" {
-			msg = resp.Status
-		}
-		return nil, fmt.Errorf("status %d: %s", resp.StatusCode, msg)
-	}
-
-	var parsed struct {
-		Results []struct {
-			Data []struct {
-				Row []any `json:"row"`
-			} `json:"data"`
-		} `json:"results"`
-		Errors []map[string]any `json:"errors"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
-		return nil, err
-	}
-	if len(parsed.Errors) > 0 {
-		return nil, fmt.Errorf("neo4j query error: %v", parsed.Errors[0])
-	}
-
-	out := map[string]float64{}
-	maxDegree := 0.0
-	if len(parsed.Results) > 0 {
-		for _, row := range parsed.Results[0].Data {
-			if len(row.Row) < 2 {
-				continue
-			}
-			id := strings.TrimSpace(fmt.Sprint(row.Row[0]))
-			deg := parseAnyFloat(row.Row[1])
-			if id == "" {
-				continue
-			}
-			out[id] = deg
-			if deg > maxDegree {
-				maxDegree = deg
-			}
-		}
-	}
-	if maxDegree <= 0 {
-		return map[string]float64{}, nil
-	}
-	for id, deg := range out {
-		out[id] = deg / maxDegree
-	}
-	return out, nil
-}
-
-func parseAnyFloat(v any) float64 {
-	switch n := v.(type) {
-	case float64:
-		return n
-	case float32:
-		return float64(n)
-	case int:
-		return float64(n)
-	case int64:
-		return float64(n)
-	case int32:
-		return float64(n)
-	case uint64:
-		return float64(n)
-	case uint32:
-		return float64(n)
-	case json.Number:
-		if f, err := n.Float64(); err == nil {
-			return f
-		}
-	}
-	return 0
-}
-
-func qdrantPointID(id any, payload map[string]any) string {
-	if payload != nil {
-		if v, ok := payload["entry_id"]; ok {
-			if s := strings.TrimSpace(fmt.Sprint(v)); s != "" && s != "<nil>" {
-				return s
-			}
-		}
-		if v, ok := payload["id"]; ok {
-			if s := strings.TrimSpace(fmt.Sprint(v)); s != "" && s != "<nil>" {
-				return s
-			}
-		}
-	}
-	if s := strings.TrimSpace(fmt.Sprint(id)); s != "" && s != "<nil>" {
-		return s
-	}
-	return ""
 }
 
 func isEmbeddingCompatible(profile EmbeddingProfile, queryDim int, rec types.EmbeddingRecord) bool {
@@ -979,7 +649,6 @@ func cloneCandidateBase(base []candidate) []candidate {
 		out[i].Score = 0
 		out[i].Lexical = 0
 		out[i].Embedding = 0
-		out[i].Backend = 0
 		out[i].Fused = 0
 		out[i].Reason = ""
 		out[i].Freshness = 0

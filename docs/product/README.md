@@ -18,4 +18,3 @@ Cross-product documentation for AthenaPlatform.
 ## Notes
 
 - Use this section for current product behavior and platform intent.
-- Use `docs/migration/` only when historical migration context is needed.

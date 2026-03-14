@@ -6,7 +6,7 @@ Do not treat this file as the primary current PM operating board for AthenaPlatf
 Lightweight capture list for product/founder notes during active chat.
 
 ## Immediate
-- [x] Finalize v0.1 goals and measurable success criteria (`product-research/decisions/ADR-0008-v01-goals-and-scorecard-target-bands.md`)
+- [x] Finalize v0.1 goals and measurable success criteria for the initial AthenaWork release posture.
 
 ## Next
 - [ ] Refine `delivery-backlog/engineering/intake/STORY-20260222-go-toolchain-availability.md` into active sequence with traceability metadata.

@@ -8,13 +8,15 @@ AthenaMind is a local-first memory layer for agentic coding workflows. It focuse
 
 In scope:
 - Procedural memory (instructions/prompts).
-- State and semantic memory (episodes, retrieval).
+- Semantic retrieval and startup bootstrap context.
 - Governance and auditability (review evidence, deterministic behavior).
 - Observability (telemetry events and OTel traces).
+- A small sqlite-first local memory workflow that is useful in daily work.
 
 Out of scope for v0.1:
 - Owning code execution runtime orchestration.
 - Pod/container lifecycle management as a product responsibility.
+- Tool proxy/wrapper identity. That belongs in `athena-use`.
 
 ## User Personas
 
@@ -24,17 +26,30 @@ Out of scope for v0.1:
 
 ## Architecture (Practical View)
 
-- CLI/API surface: `cmd/memory-cli`
-- Core modules: `internal/index`, `internal/retrieval`, `internal/governance`, `internal/snapshot`, `internal/episode`, `internal/telemetry`
+- CLI surface: `cmd/memory-cli`
+- Core modules: `internal/index`, `internal/retrieval`, `internal/governance`, `internal/snapshot`, `internal/telemetry`
 - Storage: local memory root (index, metadata, entries, telemetry)
+
+## Default Versus Experimental
+
+Default path:
+
+- `write`
+- `retrieve`
+- `bootstrap`
+- `verify`
+- `snapshot`
+
+The AthenaPlatform product intentionally exposes only this smaller path.
+
+The broader AthenaMind research repo may continue to carry experimental commands and backend work, but those are not part of the default product contract here.
 
 ## Quality Model
 
 - Retrieval modes: `classic`, `hybrid`
-- Backends: `sqlite` (default)
-- Optional advanced backends remain secondary platform work, with Mongo planned as the preferred document-db option
+- Backend: `sqlite`
 - Deterministic fallback when semantic confidence is insufficient
-- Evaluation harness with useful-rate + determinism gates
+- OpenTelemetry is required even in the stripped product
 
 ## Governance Model
 
@@ -44,7 +59,7 @@ Out of scope for v0.1:
 
 ## What To Tune
 
-- Retrieval mode, top-k, backend
+- Retrieval mode and top-k
 - Embedding endpoint choice
 - Constraint env vars
 - OTel/OTLP export configuration

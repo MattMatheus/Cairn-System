@@ -22,8 +22,3 @@ When in doubt, prefer the root platform checks in `tools/platform/` first, then 
 Most `test_*` scripts should currently be treated as imported validation references rather than guaranteed active platform checks.
 
 They preserve validation intent, but many still assume the old standalone AthenaWork repository shape.
-
-See:
-
-- `docs/migration/athenawork-active-surface.md`
-- `docs/migration/athenawork-test-classification.md`

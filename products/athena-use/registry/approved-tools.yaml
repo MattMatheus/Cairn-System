@@ -3,18 +3,38 @@ tools:
   - id: athena.platform.smoke_v1
     name: Run Platform Smoke V1
     description: Runs the supported sqlite-first AthenaPlatform smoke path from the repo root
+    status: active
+    availability: default
     tags: [athena, platform, smoke]
     stage_affinity: [engineering, qa]
+    guidance: Use for repo-level validation when platform health or release readiness needs a quick baseline check
     credential: ""
     call:
       type: exec
       command: ./tools/platform/smoke_v1.sh
     schema: []
+  - id: obsidian.open_athena_vault
+    name: Open Athena Vault
+    description: Opens the Athena Obsidian vault for note review, intake, and working documentation
+    status: active
+    availability: required
+    tags: [obsidian, docs, notes, intake]
+    stage_affinity: [planning, architect, engineering, qa, pm, cycle, release]
+    guidance: Required review surface for personal-system notes, inbox intake, and markdown working docs
+    complements: [athena-mind]
+    credential: ""
+    call:
+      type: exec
+      command: obsidian open --vault Athena
+    schema: []
   - id: athena.memory.verify_health
     name: Verify AthenaMind Health
     description: Checks local AthenaMind retrieval health for a memory root and query
+    status: active
+    availability: default
     tags: [athena, memory, validation]
     stage_affinity: [engineering, qa, pm]
+    guidance: Use when confirming the local AthenaMind store is healthy before relying on retrieval in a workflow
     credential: ""
     call:
       type: exec
@@ -32,21 +52,14 @@ tools:
         type: string
         required: false
         description: Optional domain filter when health should be checked against a narrower memory slice
-  - id: athena.platform.smoke_mongodb
-    name: Run Platform Mongo Smoke
-    description: Exercises the optional Mongo-backed AthenaMind smoke path from the repo root
-    tags: [athena, platform, smoke, mongodb]
-    stage_affinity: [engineering, qa]
-    credential: ""
-    call:
-      type: exec
-      command: ./tools/platform/smoke_mongodb.sh
-    schema: []
   - id: athena.docs.run_tests
     name: Run AthenaWork Doc Tests
     description: Runs the AthenaWork documentation and state-harness baseline test suite
+    status: active
+    availability: default
     tags: [athena, docs, validation]
     stage_affinity: [engineering, qa, pm]
+    guidance: Use when doc, state harness, or workflow guidance changes need a baseline confidence check
     credential: ""
     call:
       type: exec
@@ -55,8 +68,11 @@ tools:
   - id: athena.workspace.validate_task_metadata
     name: Validate Workspace Task Metadata
     description: Validates workspace task-note metadata for changed files or a full target directory scan
+    status: active
+    availability: default
     tags: [athena, workspace, validation, metadata]
     stage_affinity: [engineering, qa, pm]
+    guidance: Use when task notes or workspace markdown structures have changed and metadata drift is a concern
     credential: ""
     call:
       type: exec
@@ -74,10 +90,121 @@ tools:
   - id: athena.go.check_toolchain
     name: Check Go Toolchain Readiness
     description: Verifies the installed Go toolchain satisfies the repo go.mod requirement
+    status: active
+    availability: default
     tags: [athena, go, validation, readiness]
     stage_affinity: [engineering, qa]
+    guidance: Use before Go builds or test runs when local toolchain drift is suspected
     credential: ""
     call:
       type: exec
       command: ./products/athena-work/tools/check_go_toolchain.sh
     schema: []
+  - id: athena.intake.inspect_source
+    name: Inspect Intake Source Fit
+    description: Inspects a URL, file, or folder and reports how Athena intake will treat it before any staging occurs
+    status: active
+    availability: scoped
+    tags: [athena, intake, docs, research, inspection]
+    stage_affinity: [planning, architect, pm]
+    guidance: Use first when deciding whether a source belongs in the intake workflow and before writing anything into the vault
+    complements: [obsidian.open_athena_vault]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/athena-use && go run ./cmd/intake-cli inspect --format json
+    schema:
+      - name: source
+        type: string
+        required: true
+        description: URL, file path, or folder path to inspect before intake
+  - id: athena.intake.normalize_source
+    name: Stage Intake Source Into Athena Inbox
+    description: Athena intake utility for turning messy URLs, files, or folders into reviewable markdown in Obsidian
+    status: active
+    availability: scoped
+    tags: [athena, intake, docs, research, ingestion]
+    stage_affinity: [planning, architect, engineering, pm]
+    guidance: Use after inspection when external material or stray local files should become a reviewable inbox artifact before possible AthenaMind promotion
+    complements: [obsidian.open_athena_vault, athena.memory.verify_health]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/athena-use && go run ./cmd/intake-cli stage
+    schema:
+      - name: source
+        type: string
+        required: true
+        description: URL, file path, or folder path to normalize into markdown intake artifacts
+      - name: into
+        type: string
+        required: false
+        description: Optional Obsidian vault-relative destination for staged output
+      - name: vault
+        type: string
+        required: false
+        description: Optional absolute Obsidian vault root when not using the default Athena vault path
+      - name: title
+        type: string
+        required: false
+        description: Optional artifact title override for the staged markdown note
+  - id: athena.memory.promote_note
+    name: Promote Reviewed Note Into AthenaMind
+    description: Promotes a reviewed Athena vault note into the local AthenaMind store as a durable note entry with provenance
+    status: active
+    availability: scoped
+    tags: [athena, memory, promotion, notes, curation]
+    stage_affinity: [planning, pm]
+    guidance: Use only after human review when a vault note should become canonical AthenaMind memory rather than remain a staging or research artifact
+    complements: [obsidian.open_athena_vault, athena.memory.verify_health]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/athena-use && go run ./cmd/promote-cli note
+    schema:
+      - name: note_path
+        type: string
+        required: true
+        description: Absolute or workspace-relative Athena vault note path to promote
+      - name: root
+        type: string
+        required: false
+        description: Optional AthenaMind memory root, defaulting to ATHENA_MEMORY_ROOT or repo-local .athena memory
+      - name: reviewer
+        type: string
+        required: true
+        description: Human reviewer identity required by AthenaMind write policy
+      - name: reason
+        type: string
+        required: true
+        description: Why the reviewed note should be promoted into canonical memory
+      - name: risk
+        type: string
+        required: true
+        description: Risk note for the promotion decision
+      - name: notes
+        type: string
+        required: true
+        description: Decision notes recorded with the AthenaMind write audit
+  - id: gitnexus.code_graph
+    name: Analyze Repository Structure With GitNexus
+    description: Planned thin Athena-facing code graph contract for indexing messy repositories and answering context and impact questions
+    status: planned
+    availability: scoped
+    tags: [gitnexus, code, architecture, impact, analysis]
+    stage_affinity: [architect, engineering, pm]
+    guidance: Use when code archaeology, symbol context, or blast-radius analysis is needed in a poorly documented repository
+    complements: [athena.memory.verify_health, obsidian.open_athena_vault]
+    credential: ""
+    call:
+      type: planned
+      command: ""
+    schema:
+      - name: repo
+        type: string
+        required: false
+        description: Optional repository path when the current working directory is not the target repo
+      - name: target
+        type: string
+        required: false
+        description: Optional symbol or component name for context or impact analysis

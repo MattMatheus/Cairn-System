@@ -19,5 +19,5 @@ Purpose: complete process and quality hardening before state-harness implementat
 6. `delivery-backlog/engineering/done/STORY-20260222-coding-readiness-gate.md`
 
 Gate artifacts:
-- `product-research/roadmap/CODING_READINESS_GATE_CHECKLIST.md`
-- `product-research/roadmap/CODING_READINESS_DECISION_2026-02-22.md`
+- `docs/product/athena-work/product/roadmap/CODING_READINESS_GATE_CHECKLIST.md`
+- `docs/product/athena-work/product/roadmap/CODING_READINESS_DECISION_2026-02-22.md`

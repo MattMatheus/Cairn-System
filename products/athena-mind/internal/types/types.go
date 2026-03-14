@@ -27,6 +27,9 @@ type MetadataFile struct {
 	Title         string     `json:"title"`
 	Status        string     `json:"status"`
 	UpdatedAt     string     `json:"updated_at"`
+	SourceRef     string     `json:"source_ref,omitempty"`
+	SourceKind    string     `json:"source_kind,omitempty"`
+	SourceType    string     `json:"source_type,omitempty"`
 	Review        ReviewMeta `json:"review"`
 }
 
@@ -56,7 +59,6 @@ type RetrieveCandidate struct {
 	Confidence     float64 `json:"confidence"`
 	LexicalScore   float64 `json:"lexical_score,omitempty"`
 	EmbeddingScore float64 `json:"embedding_score,omitempty"`
-	BackendScore   float64 `json:"backend_score,omitempty"`
 	FusedScore     float64 `json:"fused_score,omitempty"`
 	HasVector      bool    `json:"has_vector,omitempty"`
 	Reason         string  `json:"reason,omitempty"`
@@ -75,29 +77,6 @@ type EmbeddingRecord struct {
 	LastUpdated string    `json:"updated_at,omitempty"`
 }
 
-type APIRetrieveRequest struct {
-	Query     string `json:"query"`
-	Domain    string `json:"domain,omitempty"`
-	SessionID string `json:"session_id"`
-	Mode      string `json:"mode,omitempty"`
-	TopK      int    `json:"top_k,omitempty"`
-	Backend   string `json:"backend,omitempty"`
-}
-
-type APIRetrieveResponse struct {
-	SelectedID      string              `json:"selected_id"`
-	SelectionMode   string              `json:"selection_mode"`
-	SourcePath      string              `json:"source_path"`
-	Confidence      float64             `json:"confidence"`
-	Reason          string              `json:"reason"`
-	Candidates      []RetrieveCandidate `json:"candidates,omitempty"`
-	TraceID         string              `json:"trace_id"`
-	FallbackUsed    bool                `json:"fallback_used"`
-	FallbackCode    string              `json:"fallback_code,omitempty"`
-	FallbackReason  string              `json:"fallback_reason,omitempty"`
-	GatewayEndpoint string              `json:"gateway_endpoint,omitempty"`
-}
-
 type MutationAuditRecord struct {
 	SchemaVersion string   `json:"schema_version"`
 	ID            string   `json:"id"`
@@ -112,51 +91,6 @@ type MutationAuditRecord struct {
 	ReReviewedBy  string   `json:"re_reviewed_by,omitempty"`
 	ChangedFiles  []string `json:"changed_files"`
 	Applied       bool     `json:"applied"`
-}
-
-type EvaluationQuery struct {
-	Query      string `json:"query"`
-	Domain     string `json:"domain,omitempty"`
-	ExpectedID string `json:"expected_id"`
-}
-
-type QueryMiss struct {
-	Query      string `json:"query"`
-	ExpectedID string `json:"expected_id"`
-	ActualID   string `json:"actual_id"`
-	Mode       string `json:"mode"`
-}
-
-type DeterministicReplay struct {
-	Query      string `json:"query"`
-	Mode       string `json:"mode"`
-	SelectedID string `json:"selected_id"`
-	SourcePath string `json:"source_path"`
-	StableRuns int    `json:"stable_runs"`
-}
-
-type EvaluationMetric struct {
-	Numerator   int     `json:"numerator"`
-	Denominator int     `json:"denominator"`
-	Rate        float64 `json:"rate"`
-}
-
-type EvaluationReport struct {
-	CorpusID                string                `json:"corpus_id"`
-	QuerySetID              string                `json:"query_set_id"`
-	ConfigID                string                `json:"config_id"`
-	Strategy                string                `json:"strategy"`
-	AvgLatencyMS            float64               `json:"avg_latency_ms"`
-	LatencyP50MS            float64               `json:"latency_p50_ms"`
-	LatencyP95MS            float64               `json:"latency_p95_ms"`
-	Status                  string                `json:"status"`
-	Recommendation          string                `json:"recommendation"`
-	Top1UsefulRate          EvaluationMetric      `json:"top1_useful_rate"`
-	FallbackDeterminism     EvaluationMetric      `json:"fallback_determinism"`
-	SelectionModeReporting  EvaluationMetric      `json:"selection_mode_reporting"`
-	SourceTraceCompleteness EvaluationMetric      `json:"source_trace_completeness"`
-	FailingQueries          []QueryMiss           `json:"failing_queries"`
-	DeterministicReplay     []DeterministicReplay `json:"deterministic_replay_proof"`
 }
 
 type TelemetryEvent struct {
@@ -245,13 +179,16 @@ type WritePolicyDecision struct {
 }
 
 type UpsertEntryInput struct {
-	ID       string
-	Title    string
-	Type     string
-	Domain   string
-	Body     string
-	BodyFile string
-	Stage    string
+	ID         string
+	Title      string
+	Type       string
+	Domain     string
+	Body       string
+	BodyFile   string
+	Stage      string
+	SourceRef  string
+	SourceKind string
+	SourceType string
 }
 
 type BootstrapMemoryEntry struct {
@@ -265,48 +202,10 @@ type BootstrapMemoryEntry struct {
 	Title         string  `json:"title"`
 }
 
-type EpisodeContext struct {
-	Repo      string `json:"repo"`
-	Scenario  string `json:"scenario"`
-	CycleID   string `json:"cycle_id,omitempty"`
-	StoryID   string `json:"story_id,omitempty"`
-	Outcome   string `json:"outcome,omitempty"`
-	Summary   string `json:"summary,omitempty"`
-	Timestamp string `json:"timestamp_utc,omitempty"`
-}
-
 type BootstrapPayload struct {
 	Repo          string                 `json:"repo"`
 	SessionID     string                 `json:"session_id"`
 	Scenario      string                 `json:"scenario"`
 	GeneratedAt   string                 `json:"generated_at"`
 	MemoryEntries []BootstrapMemoryEntry `json:"memory_entries"`
-	Episode       *EpisodeContext        `json:"episode,omitempty"`
-}
-
-type EpisodeRecord struct {
-	ID           string   `json:"id"`
-	Repo         string   `json:"repo"`
-	SessionID    string   `json:"session_id"`
-	CycleID      string   `json:"cycle_id"`
-	StoryID      string   `json:"story_id"`
-	Outcome      string   `json:"outcome"`
-	Summary      string   `json:"summary"`
-	FilesChanged []string `json:"files_changed"`
-	Decisions    string   `json:"decisions"`
-	CreatedAt    string   `json:"created_at"`
-}
-
-type WriteEpisodeInput struct {
-	Repo          string
-	SessionID     string
-	CycleID       string
-	StoryID       string
-	Outcome       string
-	Summary       string
-	SummaryFile   string
-	FilesChanged  string
-	Decisions     string
-	DecisionsFile string
-	Stage         string
 }

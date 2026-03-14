@@ -48,6 +48,11 @@ mkdir -p "$ATHENA_MEMORY_ROOT"
 
 AthenaMind applies a latency degradation policy during retrieval.
 
+The default threshold is tuned for local iteration rather than strict low-latency production assumptions:
+
+- default fallback threshold: `1500ms`
+- set `MEMORY_CONSTRAINT_LATENCY_P95_RETRIEVAL_MS=0` to disable latency fallback entirely during local testing
+
 The default threshold is `700ms`. When you are validating semantic retrieval against a real embedding service, that policy can force deterministic fallback even when the vector path is working correctly.
 
 For semantic validation runs, disable the fallback gate explicitly:

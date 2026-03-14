@@ -320,7 +320,11 @@ func TestEmbeddingScoringImprovesOverTokenBaseline(t *testing.T) {
 		t.Fatalf("index beta embedding: %v", err)
 	}
 
-	queries := []types.EvaluationQuery{
+	queries := []struct {
+		Query      string
+		Domain     string
+		ExpectedID string
+	}{
 		{Query: "incident response guide", Domain: "ops", ExpectedID: "beta-doc"},
 		{Query: "restore procedure", Domain: "ops", ExpectedID: "beta-doc"},
 		{Query: "downtime escalation", Domain: "ops", ExpectedID: "beta-doc"},
@@ -618,131 +622,5 @@ func TestRetrieveHybridFallsBackWithoutSignal(t *testing.T) {
 	}
 	if len(got.Candidates) == 0 {
 		t.Fatal("expected candidate traces in fallback output")
-	}
-}
-
-func TestRetrieveQdrantBackendUnavailableFallsBackGracefully(t *testing.T) {
-	root := t.TempDir()
-	policy := types.WritePolicyDecision{
-		Decision: "approved",
-		Reviewer: "qa",
-		Notes:    "ok",
-		Reason:   "test",
-		Risk:     "low",
-	}
-	_ = index.UpsertEntry(root, types.UpsertEntryInput{
-		ID:     "net",
-		Title:  "Network Runbook",
-		Type:   "prompt",
-		Domain: "ops",
-		Body:   "network rollback playbook",
-		Stage:  "pm",
-	}, policy)
-
-	embedServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{"embedding": []float64{1.0, 0.0}})
-	}))
-	defer embedServer.Close()
-
-	if _, err := IndexEntryEmbedding(root, "net", embedServer.URL, "sess-qdrant"); err != nil {
-		t.Fatalf("index embedding failed: %v", err)
-	}
-
-	t.Setenv("ATHENA_QDRANT_URL", "http://127.0.0.1:1")
-	got, warning, err := RetrieveWithOptionsAndEndpointAndSession(
-		root,
-		"network rollback",
-		"ops",
-		embedServer.URL,
-		"sess-qdrant",
-		RetrieveOptions{
-			Mode:    "hybrid",
-			TopK:    3,
-			Backend: "qdrant",
-		},
-	)
-	if err != nil {
-		t.Fatalf("retrieve should succeed with qdrant fallback, got err: %v", err)
-	}
-	if strings.TrimSpace(warning) == "" || !strings.Contains(warning, "qdrant backend unavailable") {
-		t.Fatalf("expected qdrant fallback warning, got: %q", warning)
-	}
-	if got.SelectedID == "" {
-		t.Fatalf("expected fallback/local selection, got %+v", got)
-	}
-}
-
-func TestRetrieveNeo4jBackendBoostsCandidates(t *testing.T) {
-	root := t.TempDir()
-	policy := types.WritePolicyDecision{
-		Decision: "approved",
-		Reviewer: "qa",
-		Notes:    "ok",
-		Reason:   "test",
-		Risk:     "low",
-	}
-	_ = index.UpsertEntry(root, types.UpsertEntryInput{
-		ID:     "entry-a",
-		Title:  "Entry A",
-		Type:   "prompt",
-		Domain: "ops",
-		Body:   "alpha body",
-		Stage:  "pm",
-	}, policy)
-	_ = index.UpsertEntry(root, types.UpsertEntryInput{
-		ID:     "entry-b",
-		Title:  "Entry B",
-		Type:   "prompt",
-		Domain: "ops",
-		Body:   "beta body",
-		Stage:  "pm",
-	}, policy)
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"results": []any{
-				map[string]any{
-					"data": []any{
-						map[string]any{"row": []any{"entry-a", 9}},
-						map[string]any{"row": []any{"entry-b", 1}},
-					},
-				},
-			},
-			"errors": []any{},
-		})
-	}))
-	defer server.Close()
-
-	t.Setenv("ATHENA_NEO4J_HTTP_URL", server.URL)
-	t.Setenv("ATHENA_NEO4J_USER", "neo4j")
-	t.Setenv("ATHENA_NEO4J_PASSWORD", "devpassword")
-	t.Setenv("ATHENA_NEO4J_DATABASE", "neo4j")
-
-	got, warning, err := RetrieveWithOptionsAndEndpointAndSession(
-		root,
-		"unrelated-token",
-		"ops",
-		"http://127.0.0.1:1",
-		"sess-neo",
-		RetrieveOptions{
-			Mode:    "hybrid",
-			TopK:    2,
-			Backend: "neo4j",
-		},
-	)
-	if err != nil {
-		t.Fatalf("retrieve failed: %v", err)
-	}
-	if strings.TrimSpace(warning) == "" {
-		t.Fatal("expected embedding warning due unavailable endpoint")
-	}
-	if got.SelectionMode != "hybrid_rrf" {
-		t.Fatalf("expected hybrid mode selection, got %s", got.SelectionMode)
-	}
-	if len(got.Candidates) == 0 || got.Candidates[0].BackendScore <= 0 {
-		t.Fatalf("expected backend score in candidates, got %+v", got.Candidates)
-	}
-	if got.SelectedID != "entry-a" {
-		t.Fatalf("expected neo4j boosted candidate entry-a, got %s", got.SelectedID)
 	}
 }

@@ -14,8 +14,13 @@ import (
 )
 
 const (
-	SupportTierApproved = "approved"
-	SupportTierLocal    = "local"
+	SupportTierApproved  = "approved"
+	SupportTierLocal     = "local"
+	AvailabilityRequired = "required"
+	AvailabilityDefault  = "default"
+	AvailabilityScoped   = "scoped"
+	StatusActive         = "active"
+	StatusPlanned        = "planned"
 )
 
 type LoadOptions struct {
@@ -73,6 +78,8 @@ func LoadFile(path, tier string) (types.Registry, error) {
 		return types.Registry{}, fmt.Errorf("%s: %w", path, err)
 	}
 	for i := range reg.Tools {
+		reg.Tools[i].Status = normalizeStatus(reg.Tools[i].Status)
+		reg.Tools[i].Availability = normalizeAvailability(reg.Tools[i].Availability)
 		reg.Tools[i].SupportTier = tier
 	}
 	return reg, nil
@@ -85,6 +92,15 @@ func Validate(reg types.Registry) error {
 	seen := map[string]struct{}{}
 	validStages := map[string]struct{}{
 		"planning": {}, "architect": {}, "engineering": {}, "qa": {}, "pm": {}, "cycle": {}, "release": {},
+	}
+	validAvailability := map[string]struct{}{
+		AvailabilityRequired: {},
+		AvailabilityDefault:  {},
+		AvailabilityScoped:   {},
+	}
+	validStatus := map[string]struct{}{
+		StatusActive:  {},
+		StatusPlanned: {},
 	}
 	for _, tool := range reg.Tools {
 		if strings.TrimSpace(tool.ID) == "" {
@@ -103,6 +119,14 @@ func Validate(reg types.Registry) error {
 		if strings.TrimSpace(tool.Call.Type) == "" {
 			return fmt.Errorf("tool %s missing call.type", tool.ID)
 		}
+		availability := normalizeAvailability(tool.Availability)
+		if _, ok := validAvailability[availability]; !ok {
+			return fmt.Errorf("tool %s has invalid availability value: %s", tool.ID, tool.Availability)
+		}
+		status := normalizeStatus(tool.Status)
+		if _, ok := validStatus[status]; !ok {
+			return fmt.Errorf("tool %s has invalid status value: %s", tool.ID, tool.Status)
+		}
 		for _, stage := range tool.StageAffinity {
 			if _, ok := validStages[stage]; !ok {
 				return fmt.Errorf("tool %s has invalid stage_affinity value: %s", tool.ID, stage)
@@ -118,6 +142,43 @@ func Validate(reg types.Registry) error {
 		}
 	}
 	return nil
+}
+
+func FilterForContext(tools []types.Tool, includeScoped, includePlanned bool, query string) []types.Tool {
+	if includeScoped || strings.TrimSpace(query) != "" {
+		if includePlanned {
+			return append([]types.Tool(nil), tools...)
+		}
+		filtered := make([]types.Tool, 0, len(tools))
+		for _, tool := range tools {
+			if normalizeStatus(tool.Status) == StatusPlanned {
+				continue
+			}
+			filtered = append(filtered, tool)
+		}
+		return filtered
+	}
+	filtered := make([]types.Tool, 0, len(tools))
+	for _, tool := range tools {
+		if normalizeStatus(tool.Status) == StatusPlanned && !includePlanned {
+			continue
+		}
+		if normalizeAvailability(tool.Availability) == AvailabilityScoped {
+			continue
+		}
+		filtered = append(filtered, tool)
+	}
+	return filtered
+}
+
+func FindByID(tools []types.Tool, id string) (types.Tool, bool) {
+	id = strings.TrimSpace(id)
+	for _, tool := range tools {
+		if tool.ID == id {
+			return tool, true
+		}
+	}
+	return types.Tool{}, false
 }
 
 func FilterByStage(tools []types.Tool, stage string) []types.Tool {
@@ -342,10 +403,18 @@ func assignToolField(tool *types.Tool, raw string) error {
 		tool.Name = value
 	case "description":
 		tool.Description = value
+	case "status":
+		tool.Status = normalizeStatus(value)
 	case "tags":
 		tool.Tags = parseInlineList(value)
 	case "stage_affinity":
 		tool.StageAffinity = parseInlineList(value)
+	case "availability":
+		tool.Availability = normalizeAvailability(value)
+	case "guidance":
+		tool.Guidance = value
+	case "complements":
+		tool.Complements = parseInlineList(value)
 	case "credential":
 		tool.CredentialRef = value
 	case "support_tier":
@@ -426,4 +495,28 @@ func parseInlineList(v string) []string {
 		}
 	}
 	return out
+}
+
+func normalizeAvailability(v string) string {
+	switch strings.TrimSpace(strings.ToLower(v)) {
+	case "", AvailabilityDefault:
+		return AvailabilityDefault
+	case AvailabilityRequired:
+		return AvailabilityRequired
+	case AvailabilityScoped:
+		return AvailabilityScoped
+	default:
+		return strings.TrimSpace(strings.ToLower(v))
+	}
+}
+
+func normalizeStatus(v string) string {
+	switch strings.TrimSpace(strings.ToLower(v)) {
+	case "", StatusActive:
+		return StatusActive
+	case StatusPlanned:
+		return StatusPlanned
+	default:
+		return strings.TrimSpace(strings.ToLower(v))
+	}
 }

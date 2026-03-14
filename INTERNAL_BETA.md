@@ -10,13 +10,12 @@ This is the simplest supported starting path for internal AthenaPlatform testers
 
 ## Start Here
 
-1. Read [PLATFORM_QUICKSTART.md](/Users/mattmatheus/AthenaPlatform/PLATFORM_QUICKSTART.md).
+1. Read `PLATFORM_QUICKSTART.md`.
 2. Use repo-local runtime state under `.athena/`.
-3. Run one of the supported smoke paths:
+3. Run the supported smoke path:
    - sqlite-first: `./tools/platform/smoke_v1.sh`
-   - Mongo-backed optional path: `./tools/platform/smoke_mongodb.sh`
-4. For AthenaWork human workflow, read [HUMANS.md](/Users/mattmatheus/AthenaPlatform/workspace/docs/HUMANS.md).
-5. For AthenaMind operator setup, read [README.md](/Users/mattmatheus/AthenaPlatform/docs/operator/athena-mind/getting-started/README.md).
+4. For AthenaWork human workflow, read `workspace/docs/HUMANS.md`.
+5. For AthenaMind operator setup, read `docs/operator/athena-mind/getting-started/README.md`.
 
 ## Recommended Local Setup
 
@@ -33,14 +32,6 @@ export ATHENA_EMBEDDING_ENDPOINT="http://192.168.1.35:11434"
 export ATHENA_OLLAMA_EMBED_MODEL="mxbai-embed-large:latest"
 ```
 
-Optional Mongo-backed persistence:
-
-```bash
-export ATHENA_INDEX_BACKEND="mongodb"
-export ATHENA_MONGODB_URI="mongodb://admin:changeme@127.0.0.1:27017/?authSource=admin"
-export ATHENA_MONGODB_DATABASE="athenamind"
-```
-
 ## Active Platform Surface
 
 - product code: `products/`
@@ -51,8 +42,4 @@ export ATHENA_MONGODB_DATABASE="athenamind"
 
 ## Historical Material
 
-Migration and comparison docs still exist for traceability, but they are not the recommended first stop for beta users:
-
-- `docs/migration/`
-- `docs/athenawork-versions-diff.md`
-- `docs/platform-bootstrap-plan.md`
+The beta path intentionally omits historical integration material.

@@ -5,9 +5,7 @@ Quick lookup for frequent `memory-cli` failures and direct fixes.
 
 ## Command/Input Errors
 - `--query is required`
-  - Fix: provide `--query` for `retrieve` or `api-retrieve`.
-- `--session-id is required`
-  - Fix: provide `--session-id` for `api-retrieve`.
+  - Fix: provide `--query` for `retrieve` or `verify health`.
 - `--id --title --type --domain are required`
   - Fix: include all required write fields.
 
@@ -32,12 +30,10 @@ Quick lookup for frequent `memory-cli` failures and direct fixes.
   - Fix: adjust operation/budget env or split workflow.
 - `ERR_CONSTRAINT_TRACEABILITY_INCOMPLETE`
   - Fix: ensure trace/session fields are present.
-- `ERR_API_CLI_PARITY_MISMATCH`
-  - Fix: investigate gateway divergence from local retrieve contract.
 - `embedding unavailable; using token-overlap scoring`
   - Fix: ensure Azure/OpenAI or local embedding endpoint is reachable; then rerun `verify health`.
 - `embedding unavailable for candidate entries; using token-overlap scoring`
-  - Fix: run `reindex-all` and confirm `verify embeddings` reports zero missing vectors.
+  - Fix: write or bootstrap the required memory entries, confirm `verify embeddings` coverage, and ensure the embedding endpoint is reachable.
 
 ## Escalation
 - Create a bug using `delivery-backlog/engineering/intake/BUG_TEMPLATE.md`.

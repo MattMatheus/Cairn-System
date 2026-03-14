@@ -3,6 +3,8 @@
 ## Summary
 Copy/paste examples for common CLI tasks.
 
+These examples cover the AthenaMind commands intentionally exposed in AthenaPlatform.
+
 Recommended local setup:
 
 ```bash
@@ -29,27 +31,24 @@ go run ./cmd/memory-cli write \
   --embedding-endpoint http://localhost:11434
 ```
 
+## Promote Curated Note
+```bash
+cd ../athena-use && go run ./cmd/promote-cli note \
+  --root "$ATHENA_MEMORY_ROOT" \
+  --reviewer matt \
+  --reason "durable operating guidance worth retrieving later" \
+  --risk "low; curated manually from vault note" \
+  --notes "promoted after human review" \
+  "/home/matt/Workspace/Athena/80 Research/40 Decisions/Cairn North Star.md"
+```
+
 ## Retrieve Entry
 ```bash
 go run ./cmd/memory-cli retrieve \
   --root "$ATHENA_MEMORY_ROOT" \
   --query "handoff instruction template" \
-  --mode hybrid \
-  --top-k 10 \
-  --retrieval-backend qdrant \
-  --embedding-endpoint http://localhost:11434
-```
-
-## Run Evaluation
-```bash
-go run ./cmd/memory-cli evaluate \
-  --root "$ATHENA_MEMORY_ROOT" \
-  --query-file cmd/memory-cli/testdata/eval-query-set-v1.json \
-  --corpus-id memory-corpus-v1 \
-  --query-set-id query-set-v1 \
-  --mode hybrid \
-  --top-k 10 \
-  --retrieval-backend sqlite \
+  --mode classic \
+  --top-k 5 \
   --embedding-endpoint http://localhost:11434
 ```
 
@@ -63,44 +62,8 @@ go run ./cmd/memory-cli verify embeddings \
 go run ./cmd/memory-cli verify health \
   --root "$ATHENA_MEMORY_ROOT" \
   --query "memory lifecycle" \
-  --domain docs-crawl \
+  --domain docs \
   --session-id docs-session-1
-```
-
-## Verify Optional MongoDB Contract
-```bash
-go run ./cmd/memory-cli verify mongodb \
-  --mongodb-uri mongodb://127.0.0.1:27017 \
-  --mongodb-database athenamind
-```
-
-## Use MongoDB-Backed Index Persistence
-```bash
-ATHENA_INDEX_BACKEND=mongodb \
-ATHENA_MONGODB_URI='mongodb://admin:changeme@127.0.0.1:27017/?authSource=admin' \
-ATHENA_MONGODB_DATABASE=athenamind \
-go run ./cmd/memory-cli write \
-  --root "$ATHENA_MEMORY_ROOT" \
-  --id mongo-backed-entry \
-  --title "Mongo Backed Entry" \
-  --type prompt \
-  --domain platform \
-  --body "Keep markdown files local while persisting index state in MongoDB." \
-  --stage planning \
-  --reviewer maya \
-  --decision approved \
-  --reason "mongodb adapter example" \
-  --risk "low" \
-  --notes "approved"
-```
-
-## Sync Embeddings To Qdrant
-```bash
-go run ./cmd/memory-cli sync-qdrant \
-  --root "$ATHENA_MEMORY_ROOT" \
-  --qdrant-url http://localhost:6333 \
-  --collection athena_memories \
-  --batch-size 128
 ```
 
 ## Snapshot Create/List/Restore
@@ -125,16 +88,4 @@ go run ./cmd/memory-cli snapshot restore \
   --reason "rollback to known good set" \
   --risk "low; manifest/checksum verified" \
   --notes "approved restore"
-```
-
-## API Retrieve With Fallback
-```bash
-go run ./cmd/memory-cli api-retrieve \
-  --root "$ATHENA_MEMORY_ROOT" \
-  --query "handoff instruction template" \
-  --session-id docs-session-1 \
-  --mode hybrid \
-  --top-k 10 \
-  --retrieval-backend qdrant \
-  --gateway-url http://127.0.0.1:8788
 ```

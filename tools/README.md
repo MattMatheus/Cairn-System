@@ -6,7 +6,6 @@ Shared AthenaPlatform tooling from the repo root.
 
 - `tools/platform/` for supported platform checks and smoke runs
 - `tools/dev/` for local environment helpers
-- `tools/migration/` only for cleanup or historical-content handling
 
 ## Promotion Rule
 

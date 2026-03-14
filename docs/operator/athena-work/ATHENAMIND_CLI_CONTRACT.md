@@ -111,17 +111,7 @@ Create reusable planning guidance:
 ## V1 Constraints
 
 1. Default storage is local and sqlite-first.
-2. AthenaWork should not assume optional backends are available unless the operator has explicitly configured them.
+2. AthenaWork should assume AthenaMind is sqlite-only in AthenaPlatform unless the product boundary is intentionally expanded again.
 3. AthenaWork should not depend on AthenaMind-specific internal packages.
 4. AthenaWork should not depend on AthenaUse-specific internal packages.
 5. The CLI boundary is the source of truth for product integration until a stronger service boundary is intentionally introduced.
-
-## Optional Mongo Path
-
-AthenaWork may operate with AthenaMind using Mongo-backed persistence when the operator has configured:
-
-- `ATHENA_INDEX_BACKEND=mongodb`
-- `ATHENA_MONGODB_URI=...`
-- `ATHENA_MONGODB_DATABASE=athenamind`
-
-That remains an AthenaMind deployment concern. AthenaWork should continue to invoke the same CLI contract.

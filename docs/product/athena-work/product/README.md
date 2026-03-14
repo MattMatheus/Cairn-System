@@ -8,3 +8,4 @@ Product requirements, goals, and user outcome definitions.
 - roadmap narratives
 - persona-driven workflows
 - long-term vision (`VISION.md`)
+- historical and transitional roadmap artifacts (`roadmap/`)

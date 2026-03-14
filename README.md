@@ -1,6 +1,10 @@
 # AthenaPlatform
 
-AthenaPlatform is the unified internal platform for:
+External brand direction: `Cairn`
+
+AthenaPlatform is the current internal platform workspace for the broader `Cairn` direction.
+
+Today it contains the working Athena product family:
 
 - `AthenaMind`: local developer memory and retrieval
 - `AthenaWork`: staged workflow and delivery operations
@@ -11,9 +15,30 @@ AthenaPlatform is the unified internal platform for:
 
 This root repository was initialized on 2026-03-12 to unify AthenaMind and AthenaWork into a single usable platform.
 
+## North Star
+
+`Cairn` is being built as:
+
+- a disciplined personal PKM and human-agent work system now
+- a future offline-friendly, curated knowledge tool for remote ministry contexts later
+
+That means the platform should prefer local-first operation, explicit review, low dependency weight, and outputs that remain useful under weak connectivity.
+
+## Naming Posture
+
+Current posture:
+
+- `Cairn` is the external umbrella brand and long-term outward-facing name
+- `AthenaPlatform`, `AthenaMind`, `AthenaUse`, and `AthenaWork` remain the current internal working names in this repository
+
+Rename policy:
+
+- avoid disruptive broad renames while product boundaries are still moving
+- prefer a later coordinated rename pass once command surfaces, repos, and docs are stable enough to change together
+
 Today the platform contains:
 
-- `docs/` for root-level platform analysis and integration planning
+- `docs/` for root-level platform documentation
 - `products/` as the canonical home for platform-owned product code
 - `tools/` as the shared tooling surface
 - `workspace/` as the canonical markdown workspace surface
@@ -28,12 +53,6 @@ Today the platform contains:
 - Product docs: `docs/product/README.md`
 - Platform scaffold: `docs/platform-layout.md`
 - Repo-local runtime contract: `docs/runtime-layout.md`
-
-Historical planning and migration material remains available in:
-
-- `docs/migration/`
-- `docs/athenawork-versions-diff.md`
-- `docs/platform-bootstrap-plan.md`
 
 ## Platform Layout
 
@@ -77,8 +96,7 @@ That runtime area is intended for:
 A slim developer memory system with:
 
 - markdown-first ingestion
-- `sqlite` as the default local backend
-- optional document database support for advanced users
+- `sqlite` as the storage path
 - a Go CLI as the main integration surface
 
 ### `products/athena-work`

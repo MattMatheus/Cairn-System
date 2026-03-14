@@ -33,4 +33,4 @@ Work-system product boundary.
 ## Notes
 
 - AthenaWork is the active workflow product inside AthenaPlatform.
-- Historical migration context lives in `docs/migration/` and should not be treated as the primary operator path.
+- Historical import context has been removed from the active platform surface.

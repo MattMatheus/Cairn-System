@@ -9,8 +9,12 @@ type Tool struct {
 	ID            string
 	Name          string
 	Description   string
+	Status        string
 	Tags          []string
 	StageAffinity []string
+	Availability  string
+	Guidance      string
+	Complements   []string
 	CredentialRef string
 	SupportTier   string
 	Call          ToolCall

@@ -49,20 +49,6 @@ Run the platform smoke path once the endpoint is available:
 ./tools/platform/smoke_v1.sh
 ```
 
-### Optional Mongo-backed persistence
-```bash
-export ATHENA_INDEX_BACKEND="mongodb"
-export ATHENA_MONGODB_URI="mongodb://127.0.0.1:27017"
-export ATHENA_MONGODB_DATABASE="athenamind"
-```
-
-Validate the optional Mongo path:
-
-```bash
-./tools/dev/check_mongodb_local.sh
-./tools/platform/smoke_mongodb.sh
-```
-
 ## Memory Storage Defaults
 
 - Default runtime boundary: repo-local `.athena/`
@@ -74,6 +60,11 @@ Validate the optional Mongo path:
 - Local telemetry events: `<root>/telemetry/events.jsonl`
 - Retrieval metrics: `<root>/telemetry/retrieval-metrics.jsonl`
 - OTel tracing enabled in CLI runtime, with OTLP/collector config via env vars.
+
+## Storage Note
+
+The AthenaPlatform AthenaMind product is sqlite-only.
+If you want backend experiments beyond sqlite, use the separate research repo rather than this stripped personal product.
 
 ## Verify Runtime
 

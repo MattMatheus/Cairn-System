@@ -17,6 +17,8 @@ AthenaUse adds the third governed input:
 
 The goal is to give agents a small, relevant, machine-readable set of approved tools instead of either no tool guidance or a bloated manifest dump.
 
+AthenaUse should let a simple prompt or `SKILL.md` explain available tool options without forcing those tools into every startup context.
+
 ## Product Role
 
 - AthenaMind retrieves knowledge context
@@ -24,6 +26,8 @@ The goal is to give agents a small, relevant, machine-readable set of approved t
 - AthenaWork composes stage prompt, memory context, and tool context
 
 AthenaUse is not a daemon, sandbox, MCP broker, OAuth manager, or secret store.
+
+It is also not an excuse to ambiently load every possible tool into every thread.
 
 ## V1 Scope
 
@@ -33,6 +37,7 @@ Supported commands:
 
 - `use-cli discover <query>`
 - `use-cli context [--stage <stage>] [--query <query>]`
+- `use-cli inspect <tool-id>`
 - `use-cli list [--stage <stage>] [--tag <tag>]`
 - `use-cli validate`
 
@@ -42,6 +47,11 @@ Deferred from v1:
 - memory-backed tool registry
 - Azure/bootstrap artifact retrieval
 - full JSON Schema support
+
+Operational rule:
+
+- tools should be discoverable and understandable from a compact context payload
+- tools should only be injected into a session when the work requires them
 
 ## Observability And Dependency Policy
 
@@ -74,6 +84,10 @@ Each tool entry describes:
 - stable identifier
 - human-readable name
 - description for intent matching
+- implementation status
+- availability posture
+- operator guidance
+- complementary tools or systems when relevant
 - tags
 - stage affinity
 - credential reference
@@ -93,7 +107,7 @@ Properties:
 - committed to the repository
 - reviewed and versioned with platform changes
 - validated by `use-cli validate`
-- eligible for default AthenaWork stage-context injection
+- eligible for AthenaWork stage-context injection according to tool availability posture
 - documented as supported
 
 ### Caveat Emptor
@@ -135,11 +149,23 @@ Suggested flag model:
 
 - default: approved only
 - `--include-local`: merge local tools into results
+- `--include-scoped`: include approved scoped tools even when no query is provided
 
 All output should mark support tier:
 
 - `support_tier: approved`
 - `support_tier: local`
+
+Approved tools should also carry availability posture:
+
+- `required`: part of the normal baseline when stage-matched
+- `default`: normal stage-matched approved tool
+- `scoped`: approved but excluded from default context unless explicitly relevant
+
+Approved tools may also carry implementation status:
+
+- `active`: implemented and eligible for active use
+- `planned`: part of the planning surface, inspectable and discoverable, but excluded from active context unless explicitly included for planning work
 
 ## Registry Shape
 
@@ -202,6 +228,9 @@ Agents should ask for tools by what they want to do, not by already knowing the 
 - `id`
 - `name`
 - `description`
+- `status`
+- `availability`
+- `guidance`
 - `credential_ref`
 - summarized schema
 - support tier
@@ -224,17 +253,41 @@ It should filter by:
 
 Output should stay intentionally small.
 
+It should help an agent understand what is available, not bury the agent under a random execution manifest.
+
 Recommended v1 fields:
 
 - `id`
 - `name`
 - `description`
+- `status`
+- `availability`
+- `guidance`
 - `schema`
 - `credential_ref`
 - `call_type`
 - `support_tier`
 
 It should not emit full secret material or large transport templates by default.
+
+If a scoped tool is not explicitly relevant, it should stay out of default emitted context.
+
+If a tool is still `planned`, it should also stay out of default emitted context even when it is discoverable.
+
+## Inspect Model
+
+`inspect` is the operator and PM-facing fit-check surface.
+
+It should answer:
+
+- what the tool is for
+- whether it is active or planned
+- whether it is `required`, `default`, or `scoped`
+- whether it matches the current stage
+- whether it belongs in default context
+- what it complements in the wider Athena system
+
+This keeps tool reasoning compact and auditable without reopening runtime execution scope.
 
 ## Next Approved Slice
 

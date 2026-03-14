@@ -28,4 +28,7 @@ Use this section for the interfaces that connect:
 
 - `docs/product/tooling/MODEL_TOOL_INTERFACE_PREP.md`
 - `docs/product/tooling/ATHENAUSE_V1.md`
+- `docs/product/tooling/ATHENA_INTAKE_V0.md`
+- `docs/product/tooling/ATHENA_PROMOTION_V0.md`
+- `docs/product/tooling/ATHENA_CODE_GRAPH_V0.md`
 - `products/athena-use/registry/approved-tools.yaml`

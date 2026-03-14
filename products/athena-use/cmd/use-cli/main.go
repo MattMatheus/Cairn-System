@@ -23,7 +23,7 @@ func main() {
 	defer runShutdown()
 
 	if len(os.Args) < 2 {
-		exitErr(errors.New("usage: use-cli <discover|context|validate|list> [flags]"))
+		exitErr(errors.New("usage: use-cli <discover|context|inspect|validate|list> [flags]"))
 	}
 
 	var err error
@@ -32,6 +32,8 @@ func main() {
 		err = runDiscover(os.Args[2:])
 	case "context":
 		err = runContext(os.Args[2:])
+	case "inspect":
+		err = runInspect(os.Args[2:])
 	case "validate":
 		err = runValidate(os.Args[2:])
 	case "list":

@@ -4,6 +4,14 @@
 
 This section gets you from zero to a working AthenaMind memory workflow quickly, then branches into AthenaWork operating flows.
 
+The intended platform command surface is small:
+
+- `write`
+- `retrieve`
+- `bootstrap`
+- `verify`
+- `snapshot`
+
 Recommended platform posture:
 
 - repo-local runtime state under `.athena/`
@@ -27,4 +35,4 @@ Recommended platform posture:
 - Command deep dive: `docs/product/athena-mind/cli/commands.md`
 - Product scope: `products/athena-mind/README.md`
 - Repo-local runtime contract: `docs/runtime-layout.md`
-- Telemetry export setup remains to be re-imported into the platform docs set
+- OpenTelemetry remains required across AthenaPlatform systems even while AthenaMind's public command surface stays small

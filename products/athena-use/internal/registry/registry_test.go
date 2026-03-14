@@ -53,8 +53,62 @@ tools:
 	if tool.Call.Type != "http" || tool.Call.Method != "POST" {
 		t.Fatalf("unexpected call contract: %+v", tool.Call)
 	}
+	if tool.Status != StatusActive {
+		t.Fatalf("expected active status, got %q", tool.Status)
+	}
+	if tool.Availability != AvailabilityDefault {
+		t.Fatalf("expected default availability, got %q", tool.Availability)
+	}
 	if len(tool.Schema) != 2 || !tool.Schema[0].Required {
 		t.Fatalf("unexpected schema: %+v", tool.Schema)
+	}
+}
+
+func TestFilterForContextExcludesScopedToolsByDefault(t *testing.T) {
+	tools := []types.Tool{
+		{ID: "obsidian", Status: StatusActive, Availability: AvailabilityRequired},
+		{ID: "platform.check", Status: StatusActive, Availability: AvailabilityDefault},
+		{ID: "gitnexus", Status: StatusActive, Availability: AvailabilityScoped},
+	}
+	got := FilterForContext(tools, false, false, "")
+	if len(got) != 2 {
+		t.Fatalf("expected 2 tools after default context filter, got %d", len(got))
+	}
+	for _, tool := range got {
+		if tool.ID == "gitnexus" {
+			t.Fatalf("scoped tool should not appear in default context: %+v", got)
+		}
+	}
+}
+
+func TestFilterForContextKeepsScopedToolsWhenQueryPresent(t *testing.T) {
+	tools := []types.Tool{
+		{ID: "gitnexus", Status: StatusActive, Availability: AvailabilityScoped},
+	}
+	got := FilterForContext(tools, false, false, "code archaeology")
+	if len(got) != 1 || got[0].ID != "gitnexus" {
+		t.Fatalf("expected query to preserve scoped tool, got %+v", got)
+	}
+}
+
+func TestFilterForContextExcludesPlannedToolsByDefault(t *testing.T) {
+	tools := []types.Tool{
+		{ID: "obsidian", Status: StatusActive, Availability: AvailabilityRequired},
+		{ID: "athena.intake.normalize_source", Status: StatusPlanned, Availability: AvailabilityScoped},
+	}
+	got := FilterForContext(tools, true, false, "intake markdown")
+	if len(got) != 1 || got[0].ID != "obsidian" {
+		t.Fatalf("expected planned tool to remain excluded by default, got %+v", got)
+	}
+}
+
+func TestFilterForContextCanIncludePlannedToolsExplicitly(t *testing.T) {
+	tools := []types.Tool{
+		{ID: "athena.intake.normalize_source", Status: StatusPlanned, Availability: AvailabilityScoped},
+	}
+	got := FilterForContext(tools, true, true, "intake markdown")
+	if len(got) != 1 || got[0].ID != "athena.intake.normalize_source" {
+		t.Fatalf("expected planned tool when explicitly included, got %+v", got)
 	}
 }
 
@@ -121,5 +175,17 @@ func TestApprovedRegistryFileIsValid(t *testing.T) {
 	}
 	if got := strings.Join(taskMetadata.Schema[0].Enum, ","); got != "changed,all" {
 		t.Fatalf("expected mode enum changed,all, got %q", got)
+	}
+
+	intakeTool, ok := toolsByID["athena.intake.normalize_source"]
+	if !ok || intakeTool.Status != StatusActive || intakeTool.Call.Type != "exec" {
+		t.Fatalf("expected planned intake tool in approved registry, got %+v", intakeTool)
+	}
+	if len(intakeTool.Schema) != 4 {
+		t.Fatalf("expected staged intake tool schema entries, got %+v", intakeTool.Schema)
+	}
+	intakeInspect, ok := toolsByID["athena.intake.inspect_source"]
+	if !ok || intakeInspect.Status != StatusActive || intakeInspect.Call.Type != "exec" {
+		t.Fatalf("expected active intake inspect tool in approved registry, got %+v", intakeInspect)
 	}
 }

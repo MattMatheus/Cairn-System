@@ -23,7 +23,7 @@ func main() {
 	defer runShutdown()
 
 	if len(os.Args) < 2 {
-		exitErr(errors.New("usage: memory-cli <write|retrieve|evaluate|bootstrap|verify|episode|reembed-changed|sync-qdrant|telemetry> [flags]"))
+		exitErr(errors.New("usage: memory-cli <write|retrieve|bootstrap|verify|snapshot> [flags]"))
 	}
 
 	var err error
@@ -34,28 +34,10 @@ func main() {
 		err = runRetrieve(os.Args[2:])
 	case "snapshot":
 		err = runSnapshot(os.Args[2:])
-	case "serve-read-gateway":
-		err = runServeReadGateway(os.Args[2:])
-	case "api-retrieve":
-		err = runAPIRetrieve(os.Args[2:])
-	case "evaluate":
-		err = runEvaluate(os.Args[2:])
 	case "bootstrap":
 		err = runBootstrap(os.Args[2:])
-	case "reindex-all":
-		err = runReindexAll(os.Args[2:])
-	case "crawl":
-		err = runCrawl(os.Args[2:])
-	case "reembed-changed":
-		err = runReembedChanged(os.Args[2:])
-	case "sync-qdrant":
-		err = runSyncQdrant(os.Args[2:])
 	case "verify":
 		err = runVerify(os.Args[2:])
-	case "episode":
-		err = runEpisode(os.Args[2:])
-	case "telemetry":
-		err = runTelemetry(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command: %s", os.Args[1])
 	}

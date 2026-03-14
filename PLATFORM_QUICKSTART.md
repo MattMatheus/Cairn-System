@@ -145,13 +145,4 @@ The launcher emits stage instructions plus scoped approved tool context from Ath
 ## Notes
 
 - The default AthenaMind path is local and sqlite-first.
-- Mongo is available as an optional stronger local backend for AthenaMind index and embedding persistence.
 - Example workspace content is intentionally minimal and safe.
-
-Optional Mongo-backed smoke:
-
-```bash
-ATHENA_MONGODB_URI='mongodb://admin:changeme@127.0.0.1:27017/?authSource=admin' \
-ATHENA_MONGODB_DATABASE=athenamind \
-./tools/platform/smoke_mongodb.sh
-```
