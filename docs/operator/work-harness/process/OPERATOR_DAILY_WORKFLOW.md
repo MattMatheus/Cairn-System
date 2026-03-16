@@ -6,9 +6,10 @@ Single-operator daily script for work harness state harness cycles.
 1. Confirm branch discipline (`dev`).
 2. Review `docs/operator/work-harness/process/CYCLE_INDEX.md` and `docs/operator/work-harness/DEVELOPMENT_CYCLE.md`.
 3. Run `./products/work-harness/tools/check_go_toolchain.sh`.
-4. Run `./products/work-harness/tools/run_doc_tests.sh`.
-5. Confirm active queue in `products/work-harness/delivery-backlog/engineering/active/README.md`.
-6. Review `docs/operator/work-harness/process/PROGRAM_OPERATING_SYSTEM.md`.
+4. If codegraph work is likely, run `./products/work-harness/tools/check_gitnexus_readiness.sh`.
+5. Run `./products/work-harness/tools/run_doc_tests.sh`.
+6. Confirm active queue in `products/work-harness/delivery-backlog/engineering/active/README.md`.
+7. Review `docs/operator/work-harness/process/PROGRAM_OPERATING_SYSTEM.md`.
 
 ## Engineering + QA Loop
 1. `./products/work-harness/tools/launch_stage.sh engineering`

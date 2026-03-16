@@ -11,6 +11,7 @@ The work harness tools folder currently contains a mix of:
 - `run_observer_cycle.sh`
 - `run_doc_tests.sh`
 - `check_markdown_drift.sh`
+- `check_gitnexus_readiness.sh`
 - `validate_intake_items.sh`
 - `lib/`
 

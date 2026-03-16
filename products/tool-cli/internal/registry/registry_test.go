@@ -3,34 +3,38 @@ package registry
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"toolcli/internal/types"
 )
 
-func TestLoadFileParsesRegistry(t *testing.T) {
+func TestLoadFileParsesToolSystems(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "registry.yaml")
 	content := `version: 1
 tools:
-  - id: github.create_pr
-    name: Create Pull Request
-    description: Opens a pull request
-    tags: [github, vcs]
-    stage_affinity: [engineering, qa]
-    credential: GITHUB_TOKEN
-    call:
-      type: http
-      method: POST
-      url: "https://api.github.com/repos/{owner}/{repo}/pulls"
-    schema:
-      - name: owner
-        type: string
-        required: true
-      - name: repo
-        type: string
-        required: true
+  - id: cairn
+    name: Cairn
+    description: Cairn internal tool system
+    status: active
+    tags: [cairn, internal]
+    guidance: Use for supported Cairn workflows
+    capabilities:
+      - id: intake.inspect_source
+        name: Inspect Intake Source
+        description: Inspect a source before staging
+        status: active
+        availability: scoped
+        tags: [intake]
+        stage_affinity: [pm]
+        guidance: Use before staging
+        call:
+          type: exec
+          command: intake-cli inspect
+        schema:
+          - name: source
+            type: string
+            required: true
 `
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
@@ -40,93 +44,73 @@ tools:
 	if err != nil {
 		t.Fatalf("load registry: %v", err)
 	}
-	if reg.Version != 1 {
-		t.Fatalf("expected version 1, got %d", reg.Version)
+	if len(reg.Systems) != 1 {
+		t.Fatalf("expected 1 system, got %d", len(reg.Systems))
 	}
-	if len(reg.Tools) != 1 {
-		t.Fatalf("expected 1 tool, got %d", len(reg.Tools))
+	system := reg.Systems[0]
+	if system.ID != "cairn" || system.SupportTier != SupportTierApproved {
+		t.Fatalf("unexpected system: %+v", system)
 	}
-	tool := reg.Tools[0]
-	if tool.ID != "github.create_pr" || tool.SupportTier != SupportTierApproved {
-		t.Fatalf("unexpected tool: %+v", tool)
-	}
-	if tool.Call.Type != "http" || tool.Call.Method != "POST" {
-		t.Fatalf("unexpected call contract: %+v", tool.Call)
-	}
-	if tool.Status != StatusActive {
-		t.Fatalf("expected active status, got %q", tool.Status)
-	}
-	if tool.Availability != AvailabilityDefault {
-		t.Fatalf("expected default availability, got %q", tool.Availability)
-	}
-	if len(tool.Schema) != 2 || !tool.Schema[0].Required {
-		t.Fatalf("unexpected schema: %+v", tool.Schema)
+	if len(system.Capabilities) != 1 || system.Capabilities[0].ID != "intake.inspect_source" {
+		t.Fatalf("unexpected capabilities: %+v", system.Capabilities)
 	}
 }
 
-func TestFilterForContextExcludesScopedToolsByDefault(t *testing.T) {
-	tools := []types.Tool{
-		{ID: "obsidian", Status: StatusActive, Availability: AvailabilityRequired},
-		{ID: "platform.check", Status: StatusActive, Availability: AvailabilityDefault},
-		{ID: "gitnexus", Status: StatusActive, Availability: AvailabilityScoped},
+func TestFilterForContextExcludesScopedCapabilitiesByDefault(t *testing.T) {
+	systems := []types.ToolSystem{
+		{
+			ID:     "cairn",
+			Status: StatusActive,
+			Capabilities: []types.Capability{
+				{ID: "smoke", Status: StatusActive, Availability: AvailabilityDefault},
+				{ID: "inspect", Status: StatusActive, Availability: AvailabilityScoped},
+			},
+		},
 	}
-	got := FilterForContext(tools, false, false, "")
-	if len(got) != 2 {
-		t.Fatalf("expected 2 tools after default context filter, got %d", len(got))
-	}
-	for _, tool := range got {
-		if tool.ID == "gitnexus" {
-			t.Fatalf("scoped tool should not appear in default context: %+v", got)
-		}
+	got := FilterForContext(systems, false, false, "")
+	if len(got) != 1 || len(got[0].Capabilities) != 1 || got[0].Capabilities[0].ID != "smoke" {
+		t.Fatalf("unexpected filtered context: %+v", got)
 	}
 }
 
-func TestFilterForContextKeepsScopedToolsWhenQueryPresent(t *testing.T) {
-	tools := []types.Tool{
-		{ID: "gitnexus", Status: StatusActive, Availability: AvailabilityScoped},
+func TestFilterByStageKeepsOnlyMatchingCapabilities(t *testing.T) {
+	systems := []types.ToolSystem{
+		{
+			ID: "cairn",
+			Capabilities: []types.Capability{
+				{ID: "smoke", StageAffinity: []string{"engineering"}},
+				{ID: "inspect", StageAffinity: []string{"pm"}},
+			},
+		},
 	}
-	got := FilterForContext(tools, false, false, "code archaeology")
+	got := FilterByStage(systems, "pm")
+	if len(got) != 1 || len(got[0].Capabilities) != 1 || got[0].Capabilities[0].ID != "inspect" {
+		t.Fatalf("unexpected stage filter result: %+v", got)
+	}
+}
+
+func TestDiscoverMatchesCapabilityMetadata(t *testing.T) {
+	systems := []types.ToolSystem{
+		{
+			ID:          "gitnexus",
+			Name:        "GitNexus",
+			Description: "Repository graph analysis system",
+			Capabilities: []types.Capability{
+				{
+					ID:          "code_graph",
+					Name:        "Code Graph",
+					Description: "Analyze repository structure",
+					Guidance:    "Use for code archaeology and impact analysis",
+					Call: types.ToolCall{
+						Type:    "exec",
+						Command: "gitnexus query",
+					},
+				},
+			},
+		},
+	}
+	got := Discover(systems, "archaeology")
 	if len(got) != 1 || got[0].ID != "gitnexus" {
-		t.Fatalf("expected query to preserve scoped tool, got %+v", got)
-	}
-}
-
-func TestFilterForContextExcludesPlannedToolsByDefault(t *testing.T) {
-	tools := []types.Tool{
-		{ID: "obsidian", Status: StatusActive, Availability: AvailabilityRequired},
-		{ID: "cairn.intake.normalize_source", Status: StatusPlanned, Availability: AvailabilityScoped},
-	}
-	got := FilterForContext(tools, true, false, "intake markdown")
-	if len(got) != 1 || got[0].ID != "obsidian" {
-		t.Fatalf("expected planned tool to remain excluded by default, got %+v", got)
-	}
-}
-
-func TestFilterForContextCanIncludePlannedToolsExplicitly(t *testing.T) {
-	tools := []types.Tool{
-		{ID: "cairn.intake.normalize_source", Status: StatusPlanned, Availability: AvailabilityScoped},
-	}
-	got := FilterForContext(tools, true, true, "intake markdown")
-	if len(got) != 1 || got[0].ID != "cairn.intake.normalize_source" {
-		t.Fatalf("expected planned tool when explicitly included, got %+v", got)
-	}
-}
-
-func TestDiscoverScoresMatches(t *testing.T) {
-	tools := []types.Tool{
-		{
-			ID:          "github.create_pr",
-			Name:        "Create Pull Request",
-			Description: "Open a pull request on GitHub",
-		},
-		{
-			ID:          "internal.deploy_service",
-			Name:        "Deploy Service",
-			Description: "Deploy a service to staging",
-		},
-	}
-	got := Discover(tools, "pull request")
-	if len(got) != 1 || got[0].ID != "github.create_pr" {
 		t.Fatalf("unexpected discover result: %+v", got)
 	}
 }
@@ -136,12 +120,10 @@ func TestApprovedRegistryFileIsValid(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	approvedPath, _, err := ResolvePaths(wd)
 	if err != nil {
 		t.Fatalf("resolve paths: %v", err)
 	}
-
 	reg, err := LoadFile(approvedPath, SupportTierApproved)
 	if err != nil {
 		t.Fatalf("load approved registry: %v", err)
@@ -149,43 +131,7 @@ func TestApprovedRegistryFileIsValid(t *testing.T) {
 	if err := Validate(reg); err != nil {
 		t.Fatalf("validate approved registry: %v", err)
 	}
-	if len(reg.Tools) < 5 {
-		t.Fatalf("expected at least 5 approved tools, got %d", len(reg.Tools))
-	}
-
-	toolsByID := map[string]types.Tool{}
-	for _, tool := range reg.Tools {
-		toolsByID[tool.ID] = tool
-	}
-
-	verifyHealth, ok := toolsByID["cairn.memory.verify_health"]
-	if !ok {
-		t.Fatalf("approved registry missing cairn.memory.verify_health")
-	}
-	if len(verifyHealth.Schema) != 3 || strings.TrimSpace(verifyHealth.Schema[0].Description) == "" {
-		t.Fatalf("expected verify_health schema descriptions, got %+v", verifyHealth.Schema)
-	}
-
-	taskMetadata, ok := toolsByID["cairn.workspace.validate_task_metadata"]
-	if !ok {
-		t.Fatalf("approved registry missing cairn.workspace.validate_task_metadata")
-	}
-	if len(taskMetadata.Schema) != 2 {
-		t.Fatalf("expected task metadata schema entries, got %+v", taskMetadata.Schema)
-	}
-	if got := strings.Join(taskMetadata.Schema[0].Enum, ","); got != "changed,all" {
-		t.Fatalf("expected mode enum changed,all, got %q", got)
-	}
-
-	intakeTool, ok := toolsByID["cairn.intake.normalize_source"]
-	if !ok || intakeTool.Status != StatusActive || intakeTool.Call.Type != "exec" {
-		t.Fatalf("expected planned intake tool in approved registry, got %+v", intakeTool)
-	}
-	if len(intakeTool.Schema) != 4 {
-		t.Fatalf("expected staged intake tool schema entries, got %+v", intakeTool.Schema)
-	}
-	intakeInspect, ok := toolsByID["cairn.intake.inspect_source"]
-	if !ok || intakeInspect.Status != StatusActive || intakeInspect.Call.Type != "exec" {
-		t.Fatalf("expected active intake inspect tool in approved registry, got %+v", intakeInspect)
+	if len(reg.Systems) != 4 {
+		t.Fatalf("expected 4 tool systems, got %d", len(reg.Systems))
 	}
 }

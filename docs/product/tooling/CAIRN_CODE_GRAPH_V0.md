@@ -1,6 +1,6 @@
 # Cairn Code Graph V0
 
-Status: proposed
+Status: active foundation
 
 ## Purpose
 
@@ -19,14 +19,12 @@ The goal is to preserve that value while stripping away the surrounding runtime 
 
 Cairn Code Graph V0 should expose a thin local contract around a repository-analysis backend.
 
-It should do five things well:
+It should do four things well right now:
 
 1. index a repository on demand
 2. report index freshness and status
 3. answer symbol-context questions
 4. answer blast-radius questions
-5. help relate current changes to affected flows when useful
-
 It should not try to become:
 
 - a default MCP dependency for every thread
@@ -44,13 +42,12 @@ It should not try to become:
 
 ## Minimal Command Set
 
-Recommended v0 command surface:
+Current v0 command surface:
 
 - `codegraph analyze [path]`
 - `codegraph status [path]`
 - `codegraph context <symbol>`
 - `codegraph impact <symbol>`
-- `codegraph detect-changes`
 
 Behavior:
 
@@ -58,16 +55,19 @@ Behavior:
 - `status`: report whether the current index is present and stale
 - `context`: return a focused structural view for one symbol or target
 - `impact`: return upstream or downstream blast radius for a target
-- `detect-changes`: relate current git changes to affected symbols or flows
 
-Recommended flags:
+Deferred:
+
+- `codegraph detect-changes`
+
+Current flags:
 
 - `--repo`
 - `--force`
 - `--scope`
 - `--direction`
 - `--json`
-- `--dry-run` where supported
+- `--dry-run` where supported later
 
 Explicitly not v0:
 
@@ -122,7 +122,7 @@ Ignore for v0:
 
 ## PM Recommendation
 
-PM recommendation is to keep GitNexus as a candidate backend engine while stripping the exposed Cairn contract to the smallest useful surface.
+PM recommendation is now implemented as a bounded Cairn-facing wrapper around GitNexus for explicit analyze, status, context, and impact flows.
 
 Why:
 

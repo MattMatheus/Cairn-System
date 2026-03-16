@@ -59,6 +59,7 @@ Commit policy is cycle-based:
 - Cycle: `./products/work-harness/tools/launch_stage.sh cycle`
 - Observer: `./products/work-harness/tools/run_observer_cycle.sh --cycle-id <cycle-id>`
 - Docs/site build: `./products/work-harness/tools/build_docs_site.sh`
+- GitNexus preflight when codegraph work is needed: `./products/work-harness/tools/check_gitnexus_readiness.sh`
 
 ## Control Plane Docs
 - `products/work-harness/operating-system-vault/PROGRAM_CONTROL_PLANE.md`

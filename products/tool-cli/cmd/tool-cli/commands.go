@@ -37,13 +37,13 @@ func runValidate(args []string) (err error) {
 		attribute.String("use.registry.approved_path", approvedPath),
 		attribute.String("use.registry.local_path", localPath),
 		attribute.Bool("use.registry.include_local", *includeLocal),
-		attribute.Int("use.registry.tool_count", len(reg.Tools)),
+		attribute.Int("use.registry.system_count", len(reg.Systems)),
 	)
 
 	if err := registry.Validate(reg); err != nil {
 		return err
 	}
-	fmt.Printf("registry valid: %d tools\n", len(reg.Tools))
+	fmt.Printf("registry valid: %d tool systems\n", len(reg.Systems))
 	return nil
 }
 
@@ -59,12 +59,12 @@ func runList(args []string) (err error) {
 	stage := fs.String("stage", "", "stage filter")
 	tag := fs.String("tag", "", "tag filter")
 	format := fs.String("format", "text", "output format: text|json|yaml")
-	includeLocal := fs.Bool("include-local", false, "include local overlay tools")
+	includeLocal := fs.Bool("include-local", false, "include local overlay tool systems")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 
-	tools, err := filteredTools(ctx, *registryPath, *includeLocal, *stage, *tag, "")
+	systems, err := filteredSystems(ctx, *registryPath, *includeLocal, *stage, *tag, "")
 	if err != nil {
 		return err
 	}
@@ -72,9 +72,9 @@ func runList(args []string) (err error) {
 		attribute.String("use.stage", *stage),
 		attribute.String("use.tag", *tag),
 		attribute.String("use.format", *format),
-		attribute.Int("use.results.count", len(tools)),
+		attribute.Int("use.results.count", len(systems)),
 	)
-	return writeToolList(tools, *format)
+	return writeSystemList(systems, *format)
 }
 
 func runDiscover(args []string) (err error) {
@@ -87,7 +87,7 @@ func runDiscover(args []string) (err error) {
 	fs.SetOutput(os.Stderr)
 	registryPath := fs.String("registry", "", "approved registry path")
 	format := fs.String("format", "text", "output format: text|json|yaml")
-	includeLocal := fs.Bool("include-local", false, "include local overlay tools")
+	includeLocal := fs.Bool("include-local", false, "include local overlay tool systems")
 	stage := fs.String("stage", "", "optional stage filter")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -96,7 +96,7 @@ func runDiscover(args []string) (err error) {
 	if strings.TrimSpace(query) == "" {
 		return fmt.Errorf("discover query is required")
 	}
-	tools, err := filteredTools(ctx, *registryPath, *includeLocal, *stage, "", query)
+	systems, err := filteredSystems(ctx, *registryPath, *includeLocal, *stage, "", query)
 	if err != nil {
 		return err
 	}
@@ -104,9 +104,9 @@ func runDiscover(args []string) (err error) {
 		attribute.String("use.query", query),
 		attribute.String("use.stage", *stage),
 		attribute.String("use.format", *format),
-		attribute.Int("use.results.count", len(tools)),
+		attribute.Int("use.results.count", len(systems)),
 	)
-	return writeToolList(tools, *format)
+	return writeSystemList(systems, *format)
 }
 
 func runContext(args []string) (err error) {
@@ -121,31 +121,31 @@ func runContext(args []string) (err error) {
 	stage := fs.String("stage", "", "stage filter")
 	query := fs.String("query", "", "optional intent filter")
 	format := fs.String("format", "yaml", "output format: yaml|json")
-	includeLocal := fs.Bool("include-local", false, "include local overlay tools")
-	includeScoped := fs.Bool("include-scoped", false, "include scoped tools even when no query is provided")
-	includePlanned := fs.Bool("include-planned", false, "include planned tools in emitted context")
+	includeLocal := fs.Bool("include-local", false, "include local overlay tool systems")
+	includeScoped := fs.Bool("include-scoped", false, "include scoped capabilities even when no query is provided")
+	includePlanned := fs.Bool("include-planned", false, "include planned tool systems and capabilities in emitted context")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	tools, err := filteredTools(ctx, *registryPath, *includeLocal, *stage, "", *query)
+	systems, err := filteredSystems(ctx, *registryPath, *includeLocal, *stage, "", *query)
 	if err != nil {
 		return err
 	}
-	tools = registry.FilterForContext(tools, *includeScoped, *includePlanned, *query)
+	systems = registry.FilterForContext(systems, *includeScoped, *includePlanned, *query)
 	commandSpan.SetAttributes(
 		attribute.String("use.stage", *stage),
 		attribute.String("use.query", *query),
 		attribute.String("use.format", *format),
 		attribute.Bool("use.include_scoped", *includeScoped),
 		attribute.Bool("use.include_planned", *includePlanned),
-		attribute.Int("use.results.count", len(tools)),
+		attribute.Int("use.results.count", len(systems)),
 	)
 	switch strings.ToLower(strings.TrimSpace(*format)) {
 	case "json":
 		payload := map[string]any{
 			"tool_context": map[string]any{
-				"stage": *stage,
-				"tools": summarizeContextTools(tools),
+				"stage":   *stage,
+				"systems": summarizeContextSystems(systems),
 			},
 		}
 		data, err := json.MarshalIndent(payload, "", "  ")
@@ -157,34 +157,28 @@ func runContext(args []string) (err error) {
 	case "yaml":
 		fmt.Println("tool_context:")
 		fmt.Printf("  stage: %s\n", strings.TrimSpace(*stage))
-		fmt.Println("  tools:")
-		for _, tool := range summarizeContextTools(tools) {
-			fmt.Printf("    - id: %s\n", tool["id"])
-			fmt.Printf("      name: %s\n", tool["name"])
-			fmt.Printf("      description: %s\n", tool["description"])
-			fmt.Printf("      status: %s\n", tool["status"])
-			fmt.Printf("      availability: %s\n", tool["availability"])
-			fmt.Printf("      guidance: %s\n", tool["guidance"])
-			fmt.Printf("      call_type: %s\n", tool["call_type"])
-			fmt.Printf("      credential_ref: %s\n", tool["credential_ref"])
-			fmt.Printf("      support_tier: %s\n", tool["support_tier"])
-			fmt.Printf("      schema_summary: %s\n", tool["schema_summary"])
-			fields := tool["parameters"].([]map[string]any)
-			if len(fields) == 0 {
-				fmt.Println("      parameters: []")
+		fmt.Println("  systems:")
+		for _, system := range summarizeContextSystems(systems) {
+			fmt.Printf("    - id: %s\n", system["id"])
+			fmt.Printf("      name: %s\n", system["name"])
+			fmt.Printf("      description: %s\n", system["description"])
+			fmt.Printf("      status: %s\n", system["status"])
+			fmt.Printf("      guidance: %s\n", system["guidance"])
+			fmt.Printf("      support_tier: %s\n", system["support_tier"])
+			fmt.Printf("      capabilities_summary: %s\n", system["capabilities_summary"])
+			capabilities := system["capabilities"].([]map[string]any)
+			if len(capabilities) == 0 {
+				fmt.Println("      capabilities: []")
 				continue
 			}
-			fmt.Println("      parameters:")
-			for _, field := range fields {
-				fmt.Printf("        - name: %s\n", field["name"])
-				fmt.Printf("          type: %s\n", field["type"])
-				fmt.Printf("          required: %t\n", field["required"])
-				if description, ok := field["description"].(string); ok && description != "" {
-					fmt.Printf("          description: %s\n", description)
-				}
-				if enumValues, ok := field["enum"].([]string); ok && len(enumValues) > 0 {
-					fmt.Printf("          enum: [%s]\n", strings.Join(enumValues, ", "))
-				}
+			fmt.Println("      capabilities:")
+			for _, capability := range capabilities {
+				fmt.Printf("        - id: %s\n", capability["id"])
+				fmt.Printf("          name: %s\n", capability["name"])
+				fmt.Printf("          status: %s\n", capability["status"])
+				fmt.Printf("          availability: %s\n", capability["availability"])
+				fmt.Printf("          guidance: %s\n", capability["guidance"])
+				fmt.Printf("          schema_summary: %s\n", capability["schema_summary"])
 			}
 		}
 		return nil
@@ -202,16 +196,16 @@ func runInspect(args []string) (err error) {
 	fs := flag.NewFlagSet("inspect", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 	registryPath := fs.String("registry", "", "approved registry path")
-	stage := fs.String("stage", "", "optional stage to evaluate fit against")
+	stage := fs.String("stage", "", "optional stage to evaluate capability fit against")
 	format := fs.String("format", "text", "output format: text|json|yaml")
-	includeLocal := fs.Bool("include-local", false, "include local overlay tools")
+	includeLocal := fs.Bool("include-local", false, "include local overlay tool systems")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	if len(fs.Args()) != 1 {
-		return fmt.Errorf("inspect requires exactly one tool id")
+		return fmt.Errorf("inspect requires exactly one tool system id or query")
 	}
-	toolID := strings.TrimSpace(fs.Args()[0])
+	query := strings.TrimSpace(fs.Args()[0])
 	reg, _, _, err := loadRegistry(ctx, *registryPath, *includeLocal)
 	if err != nil {
 		return err
@@ -219,19 +213,49 @@ func runInspect(args []string) (err error) {
 	if err := registry.Validate(reg); err != nil {
 		return err
 	}
-	tool, ok := registry.FindByID(reg.Tools, toolID)
-	if !ok {
-		return fmt.Errorf("unknown tool id: %s", toolID)
+	system, resolvedID, err := resolveInspectSystem(reg.Systems, query)
+	if err != nil {
+		return err
 	}
-	summary := summarizeInspectTool(tool, *stage)
+	summary := summarizeInspectSystem(system, *stage)
 	commandSpan.SetAttributes(
-		attribute.String("use.tool.id", toolID),
+		attribute.String("use.tool.id", resolvedID),
+		attribute.String("use.tool.query", query),
 		attribute.String("use.stage", *stage),
 		attribute.String("use.format", *format),
-		attribute.String("use.tool.status", tool.Status),
-		attribute.String("use.tool.availability", tool.Availability),
+		attribute.String("use.tool.status", system.Status),
 	)
 	return writeInspectSummary(summary, *format)
+}
+
+func resolveInspectSystem(systems []types.ToolSystem, query string) (types.ToolSystem, string, error) {
+	query = strings.TrimSpace(query)
+	if query == "" {
+		return types.ToolSystem{}, "", fmt.Errorf("tool system query is required")
+	}
+	if system, ok := registry.FindByID(systems, query); ok {
+		return system, system.ID, nil
+	}
+	matches := registry.Discover(systems, query)
+	switch len(matches) {
+	case 0:
+		return types.ToolSystem{}, "", fmt.Errorf("unknown tool system id or query: %s", query)
+	case 1:
+		return matches[0], matches[0].ID, nil
+	default:
+		ids := make([]string, 0, min(len(matches), 5))
+		for _, system := range matches[:min(len(matches), 5)] {
+			ids = append(ids, system.ID)
+		}
+		return types.ToolSystem{}, "", fmt.Errorf("ambiguous tool system query %q; matches: %s", query, strings.Join(ids, ", "))
+	}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func loadRegistry(ctx context.Context, override string, includeLocal bool) (types.Registry, string, string, error) {
@@ -275,7 +299,7 @@ func loadRegistry(ctx context.Context, override string, includeLocal bool) (type
 	return reg, approvedPath, localPath, nil
 }
 
-func filteredTools(ctx context.Context, registryPath string, includeLocal bool, stage, tag, query string) ([]types.Tool, error) {
+func filteredSystems(ctx context.Context, registryPath string, includeLocal bool, stage, tag, query string) ([]types.ToolSystem, error) {
 	reg, _, _, err := loadRegistry(ctx, registryPath, includeLocal)
 	if err != nil {
 		return nil, err
@@ -283,41 +307,39 @@ func filteredTools(ctx context.Context, registryPath string, includeLocal bool, 
 	if err := registry.Validate(reg); err != nil {
 		return nil, err
 	}
-	tools := reg.Tools
-	tools = registry.FilterByStage(tools, stage)
-	tools = registry.FilterByTag(tools, tag)
-	tools = registry.Discover(tools, query)
-	return tools, nil
+	systems := reg.Systems
+	systems = registry.FilterByStage(systems, stage)
+	systems = registry.FilterByTag(systems, tag)
+	systems = registry.Discover(systems, query)
+	return systems, nil
 }
 
-func writeToolList(tools []types.Tool, format string) error {
+func writeSystemList(systems []types.ToolSystem, format string) error {
 	switch strings.ToLower(strings.TrimSpace(format)) {
 	case "json":
-		data, err := json.MarshalIndent(summarizeTools(tools), "", "  ")
+		data, err := json.MarshalIndent(summarizeSystems(systems), "", "  ")
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(data))
 		return nil
 	case "yaml":
-		for _, tool := range summarizeTools(tools) {
-			fmt.Printf("- id: %s\n", tool["id"])
-			fmt.Printf("  name: %s\n", tool["name"])
-			fmt.Printf("  description: %s\n", tool["description"])
-			fmt.Printf("  call_type: %s\n", tool["call_type"])
-			fmt.Printf("  credential_ref: %s\n", tool["credential_ref"])
-			fmt.Printf("  support_tier: %s\n", tool["support_tier"])
+		for _, system := range summarizeSystems(systems) {
+			fmt.Printf("- id: %s\n", system["id"])
+			fmt.Printf("  name: %s\n", system["name"])
+			fmt.Printf("  description: %s\n", system["description"])
+			fmt.Printf("  status: %s\n", system["status"])
+			fmt.Printf("  support_tier: %s\n", system["support_tier"])
+			fmt.Printf("  capabilities_summary: %s\n", system["capabilities_summary"])
 		}
 		return nil
 	case "text":
-		for _, tool := range tools {
-			fmt.Printf("%s  %s\n", tool.ID, tool.Name)
-			fmt.Printf("  %s\n", tool.Description)
-			fmt.Printf("  Status: %s\n", tool.Status)
-			fmt.Printf("  Availability: %s\n", tool.Availability)
-			fmt.Printf("  Credential: %s\n", tool.CredentialRef)
-			fmt.Printf("  Schema: %s\n", schemaSummary(tool.Schema))
-			fmt.Printf("  Tier: %s\n", tool.SupportTier)
+		for _, system := range systems {
+			fmt.Printf("%s  %s\n", system.ID, system.Name)
+			fmt.Printf("  %s\n", system.Description)
+			fmt.Printf("  Status: %s\n", system.Status)
+			fmt.Printf("  Capabilities: %s\n", capabilitySummary(system.Capabilities))
+			fmt.Printf("  Tier: %s\n", system.SupportTier)
 		}
 		return nil
 	default:
@@ -325,118 +347,88 @@ func writeToolList(tools []types.Tool, format string) error {
 	}
 }
 
-func summarizeTools(tools []types.Tool) []map[string]any {
-	summary := make([]map[string]any, 0, len(tools))
-	for _, tool := range tools {
+func summarizeSystems(systems []types.ToolSystem) []map[string]any {
+	summary := make([]map[string]any, 0, len(systems))
+	for _, system := range systems {
 		summary = append(summary, map[string]any{
-			"id":             tool.ID,
-			"name":           tool.Name,
-			"description":    tool.Description,
-			"status":         tool.Status,
-			"availability":   tool.Availability,
-			"guidance":       tool.Guidance,
-			"complements":    append([]string{}, tool.Complements...),
-			"schema":         schemaSummary(tool.Schema),
-			"credential_ref": tool.CredentialRef,
-			"call_type":      tool.Call.Type,
-			"support_tier":   tool.SupportTier,
+			"id":                   system.ID,
+			"name":                 system.Name,
+			"description":          system.Description,
+			"status":               system.Status,
+			"guidance":             system.Guidance,
+			"complements":          append([]string{}, system.Complements...),
+			"capabilities_summary": capabilitySummary(system.Capabilities),
+			"support_tier":         system.SupportTier,
 		})
 	}
 	return summary
 }
 
-func summarizeContextTools(tools []types.Tool) []map[string]any {
-	summary := make([]map[string]any, 0, len(tools))
-	for _, tool := range tools {
+func summarizeContextSystems(systems []types.ToolSystem) []map[string]any {
+	summary := make([]map[string]any, 0, len(systems))
+	for _, system := range systems {
 		summary = append(summary, map[string]any{
-			"id":             tool.ID,
-			"name":           tool.Name,
-			"description":    tool.Description,
-			"status":         tool.Status,
-			"availability":   tool.Availability,
-			"guidance":       tool.Guidance,
-			"complements":    append([]string{}, tool.Complements...),
-			"schema":         schemaSummary(tool.Schema),
-			"schema_summary": schemaSummary(tool.Schema),
-			"parameters":     summarizeSchemaFields(tool.Schema),
-			"credential_ref": tool.CredentialRef,
-			"call_type":      tool.Call.Type,
-			"support_tier":   tool.SupportTier,
+			"id":                   system.ID,
+			"name":                 system.Name,
+			"description":          system.Description,
+			"status":               system.Status,
+			"guidance":             system.Guidance,
+			"complements":          append([]string{}, system.Complements...),
+			"capabilities_summary": capabilitySummary(system.Capabilities),
+			"capabilities":         summarizeCapabilities(system.Capabilities),
+			"support_tier":         system.SupportTier,
 		})
 	}
 	return summary
 }
 
-func summarizeInspectTool(tool types.Tool, stage string) map[string]any {
-	stage = strings.TrimSpace(stage)
-	stageMatch := stage == "" || matchesStage(tool, stage)
-	statusActive := tool.Status != registry.StatusPlanned
-	contextEligible := tool.Availability != registry.AvailabilityScoped || stage == "" || stageMatch
-	if tool.Availability == registry.AvailabilityScoped && stage == "" {
-		contextEligible = false
-	}
-	if tool.Availability == registry.AvailabilityScoped && stage != "" {
-		contextEligible = false
-	}
-	if !statusActive {
-		contextEligible = false
-	}
+func summarizeInspectSystem(system types.ToolSystem, stage string) map[string]any {
 	return map[string]any{
-		"id":                 tool.ID,
-		"name":               tool.Name,
-		"description":        tool.Description,
-		"status":             tool.Status,
-		"availability":       tool.Availability,
-		"guidance":           tool.Guidance,
-		"complements":        append([]string{}, tool.Complements...),
-		"support_tier":       tool.SupportTier,
-		"stage_affinity":     append([]string{}, tool.StageAffinity...),
-		"stage":              stage,
-		"stage_match":        stageMatch,
-		"default_in_context": statusActive && tool.Availability != registry.AvailabilityScoped && stageMatch,
-		"context_note":       inspectContextNote(tool, stage, stageMatch),
-		"call_type":          tool.Call.Type,
-		"call_method":        tool.Call.Method,
-		"call_url":           tool.Call.URL,
-		"call_command":       tool.Call.Command,
-		"credential_ref":     tool.CredentialRef,
-		"schema_summary":     schemaSummary(tool.Schema),
-		"parameters":         summarizeSchemaFields(tool.Schema),
-		"context_eligible":   contextEligible,
+		"id":                   system.ID,
+		"name":                 system.Name,
+		"description":          system.Description,
+		"status":               system.Status,
+		"guidance":             system.Guidance,
+		"complements":          append([]string{}, system.Complements...),
+		"support_tier":         system.SupportTier,
+		"stage":                strings.TrimSpace(stage),
+		"capabilities_summary": capabilitySummary(system.Capabilities),
+		"capabilities":         summarizeInspectCapabilities(system.Capabilities, stage),
 	}
 }
 
 func writeInspectSummary(summary map[string]any, format string) error {
 	switch strings.ToLower(strings.TrimSpace(format)) {
 	case "json":
-		data, err := json.MarshalIndent(map[string]any{"tool": summary}, "", "  ")
+		data, err := json.MarshalIndent(map[string]any{"tool_system": summary}, "", "  ")
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(data))
 		return nil
 	case "yaml":
-		fmt.Println("tool:")
+		fmt.Println("tool_system:")
 		writeInspectYAML(summary, "  ")
 		return nil
 	case "text":
 		fmt.Printf("%s  %s\n", summary["id"], summary["name"])
 		fmt.Printf("  %s\n", summary["description"])
 		fmt.Printf("  Status: %s\n", summary["status"])
-		fmt.Printf("  Availability: %s\n", summary["availability"])
-		fmt.Printf("  Context: %s\n", summary["context_note"])
 		if guidance, ok := summary["guidance"].(string); ok && guidance != "" {
 			fmt.Printf("  Guidance: %s\n", guidance)
 		}
-		if stage, ok := summary["stage"].(string); ok && stage != "" {
-			fmt.Printf("  Stage: %s\n", stage)
-			fmt.Printf("  Stage Match: %t\n", summary["stage_match"])
-		}
-		fmt.Printf("  Call Type: %s\n", summary["call_type"])
-		fmt.Printf("  Credential: %s\n", summary["credential_ref"])
-		fmt.Printf("  Schema: %s\n", summary["schema_summary"])
+		fmt.Printf("  Capabilities: %s\n", summary["capabilities_summary"])
 		if complements, ok := summary["complements"].([]string); ok && len(complements) > 0 {
 			fmt.Printf("  Complements: %s\n", strings.Join(complements, ", "))
+		}
+		capabilities := summary["capabilities"].([]map[string]any)
+		for _, capability := range capabilities {
+			fmt.Printf("  Capability: %s\n", capability["id"])
+			fmt.Printf("    Name: %s\n", capability["name"])
+			fmt.Printf("    Status: %s\n", capability["status"])
+			fmt.Printf("    Availability: %s\n", capability["availability"])
+			fmt.Printf("    Context: %s\n", capability["context_note"])
+			fmt.Printf("    Schema: %s\n", capability["schema_summary"])
 		}
 		return nil
 	default:
@@ -449,108 +441,100 @@ func writeInspectYAML(summary map[string]any, prefix string) {
 	fmt.Printf("%sname: %s\n", prefix, summary["name"])
 	fmt.Printf("%sdescription: %s\n", prefix, summary["description"])
 	fmt.Printf("%sstatus: %s\n", prefix, summary["status"])
-	fmt.Printf("%savailability: %s\n", prefix, summary["availability"])
-	fmt.Printf("%scontext_note: %s\n", prefix, summary["context_note"])
 	if guidance, ok := summary["guidance"].(string); ok && guidance != "" {
 		fmt.Printf("%sguidance: %s\n", prefix, guidance)
 	}
 	fmt.Printf("%ssupport_tier: %s\n", prefix, summary["support_tier"])
-	fmt.Printf("%scall_type: %s\n", prefix, summary["call_type"])
-	if method, ok := summary["call_method"].(string); ok && method != "" {
-		fmt.Printf("%scall_method: %s\n", prefix, method)
-	}
-	if url, ok := summary["call_url"].(string); ok && url != "" {
-		fmt.Printf("%scall_url: %s\n", prefix, url)
-	}
-	if command, ok := summary["call_command"].(string); ok && command != "" {
-		fmt.Printf("%scall_command: %s\n", prefix, command)
-	}
-	fmt.Printf("%scredential_ref: %s\n", prefix, summary["credential_ref"])
-	fmt.Printf("%sschema_summary: %s\n", prefix, summary["schema_summary"])
-	fmt.Printf("%sdefault_in_context: %t\n", prefix, summary["default_in_context"])
-	if stage, ok := summary["stage"].(string); ok && stage != "" {
-		fmt.Printf("%sstage: %s\n", prefix, stage)
-		fmt.Printf("%sstage_match: %t\n", prefix, summary["stage_match"])
-	}
-	if stages, ok := summary["stage_affinity"].([]string); ok && len(stages) > 0 {
-		fmt.Printf("%sstage_affinity: [%s]\n", prefix, strings.Join(stages, ", "))
-	}
+	fmt.Printf("%scapabilities_summary: %s\n", prefix, summary["capabilities_summary"])
 	if complements, ok := summary["complements"].([]string); ok && len(complements) > 0 {
 		fmt.Printf("%scomplements: [%s]\n", prefix, strings.Join(complements, ", "))
 	}
-	fields := summary["parameters"].([]map[string]any)
-	if len(fields) == 0 {
-		fmt.Printf("%sparameters: []\n", prefix)
+	capabilities := summary["capabilities"].([]map[string]any)
+	if len(capabilities) == 0 {
+		fmt.Printf("%scapabilities: []\n", prefix)
 		return
 	}
-	fmt.Printf("%sparameters:\n", prefix)
-	for _, field := range fields {
-		fmt.Printf("%s  - name: %s\n", prefix, field["name"])
-		fmt.Printf("%s    type: %s\n", prefix, field["type"])
-		fmt.Printf("%s    required: %t\n", prefix, field["required"])
-		if description, ok := field["description"].(string); ok && description != "" {
-			fmt.Printf("%s    description: %s\n", prefix, description)
-		}
-		if enumValues, ok := field["enum"].([]string); ok && len(enumValues) > 0 {
-			fmt.Printf("%s    enum: [%s]\n", prefix, strings.Join(enumValues, ", "))
-		}
+	fmt.Printf("%scapabilities:\n", prefix)
+	for _, capability := range capabilities {
+		fmt.Printf("%s  - id: %s\n", prefix, capability["id"])
+		fmt.Printf("%s    name: %s\n", prefix, capability["name"])
+		fmt.Printf("%s    status: %s\n", prefix, capability["status"])
+		fmt.Printf("%s    availability: %s\n", prefix, capability["availability"])
+		fmt.Printf("%s    context_note: %s\n", prefix, capability["context_note"])
+		fmt.Printf("%s    schema_summary: %s\n", prefix, capability["schema_summary"])
 	}
 }
 
-func inspectContextNote(tool types.Tool, stage string, stageMatch bool) string {
-	if tool.Status == registry.StatusPlanned {
-		if stage != "" && !stageMatch {
-			return "planned tool; not active and not a fit for this stage without explicit future implementation"
-		}
-		return "planned tool; discoverable for planning, but not included in active context by default"
+func summarizeCapabilities(capabilities []types.Capability) []map[string]any {
+	summary := make([]map[string]any, 0, len(capabilities))
+	for _, capability := range capabilities {
+		summary = append(summary, map[string]any{
+			"id":             capability.ID,
+			"name":           capability.Name,
+			"description":    capability.Description,
+			"status":         capability.Status,
+			"availability":   capability.Availability,
+			"guidance":       capability.Guidance,
+			"schema_summary": schemaSummary(capability.Schema),
+		})
 	}
-	switch tool.Availability {
+	return summary
+}
+
+func summarizeInspectCapabilities(capabilities []types.Capability, stage string) []map[string]any {
+	summary := make([]map[string]any, 0, len(capabilities))
+	for _, capability := range capabilities {
+		summary = append(summary, map[string]any{
+			"id":             capability.ID,
+			"name":           capability.Name,
+			"status":         capability.Status,
+			"availability":   capability.Availability,
+			"context_note":   inspectContextNote(capability, stage),
+			"schema_summary": schemaSummary(capability.Schema),
+		})
+	}
+	return summary
+}
+
+func inspectContextNote(capability types.Capability, stage string) string {
+	stage = strings.TrimSpace(stage)
+	stageMatch := stage == "" || matchesStage(capability, stage)
+	if capability.Status == registry.StatusPlanned {
+		if stage != "" && !stageMatch {
+			return "planned capability; not a fit for this stage without explicit future implementation"
+		}
+		return "planned capability; visible for planning but not active by default"
+	}
+	switch capability.Availability {
 	case registry.AvailabilityRequired:
 		if stage != "" && !stageMatch {
-			return "required tool, but current stage does not match its affinity"
+			return "required capability, but current stage does not match its affinity"
 		}
-		return "required tool; appropriate to include by default"
+		return "required capability; appropriate to include by default"
 	case registry.AvailabilityScoped:
 		if stage != "" && !stageMatch {
-			return "scoped tool; not a fit for this stage without an explicit override"
+			return "scoped capability; not a fit for this stage without an explicit override"
 		}
-		return "scoped tool; discoverable and inspectable, but not included by default"
+		return "scoped capability; discoverable and inspectable, but not included by default"
 	default:
 		if stage != "" && !stageMatch {
-			return "default tool, but current stage does not match its affinity"
+			return "default capability, but current stage does not match its affinity"
 		}
-		return "default tool; appropriate for normal context injection"
+		return "default capability; appropriate for normal context injection"
 	}
 }
 
-func matchesStage(tool types.Tool, stage string) bool {
+func matchesStage(capability types.Capability, stage string) bool {
 	stage = strings.TrimSpace(stage)
-	if stage == "" || len(tool.StageAffinity) == 0 {
+	if stage == "" || len(capability.StageAffinity) == 0 {
 		return true
 	}
-	for _, candidate := range tool.StageAffinity {
+	for _, candidate := range capability.StageAffinity {
 		if candidate == stage {
 			return true
 		}
 	}
 	return false
-}
-
-func summarizeSchemaFields(fields []types.SchemaField) []map[string]any {
-	if len(fields) == 0 {
-		return []map[string]any{}
-	}
-	summary := make([]map[string]any, 0, len(fields))
-	for _, field := range fields {
-		summary = append(summary, map[string]any{
-			"name":        field.Name,
-			"type":        field.Type,
-			"required":    field.Required,
-			"description": field.Description,
-			"enum":        append([]string{}, field.Enum...),
-		})
-	}
-	return summary
 }
 
 func schemaSummary(fields []types.SchemaField) string {
@@ -564,6 +548,17 @@ func schemaSummary(fields []types.SchemaField) string {
 			required = "req"
 		}
 		parts = append(parts, fmt.Sprintf("%s(%s)", field.Name, required))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func capabilitySummary(capabilities []types.Capability) string {
+	if len(capabilities) == 0 {
+		return "(none)"
+	}
+	parts := make([]string, 0, len(capabilities))
+	for _, capability := range capabilities {
+		parts = append(parts, capability.ID)
 	}
 	return strings.Join(parts, ", ")
 }

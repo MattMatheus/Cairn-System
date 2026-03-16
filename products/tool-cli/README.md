@@ -2,72 +2,35 @@
 
 tool-cli is the tool-context companion to memory-cli.
 
-It gives work harness a governed, scoped tool surface at stage launch so agents receive:
+It does not model every small operation as a separate tool. It models a small set of approved tool systems and the bounded capabilities Cairn is willing to expose from each one.
 
-1. seed prompt
-2. memory bootstrap
-3. tool context
+## Current Tool Systems
 
-## V1 Role
+- `cairn`
+- `obsidian`
+- `firecrawl`
+- `gitnexus`
 
-tool-cli v1 is a discovery and context-emission product.
+Current rule:
 
-Its job is to let a small prompt or `SKILL.md` explain the available toolset without loading unnecessary tools into every session.
+- keep the top-level tool-system list small
+- keep Cairn-owned capabilities under `cairn`
+- expose only the specific external capabilities Cairn actually supports
+- fail explicitly when selection is ambiguous
+- wrap GitNexus behind `codegraph-cli` instead of exposing its full native surface
 
-Initial command surface:
+## Command Surface
 
 - `tool-cli discover`
 - `tool-cli context`
 - `tool-cli inspect`
 - `tool-cli list`
 - `tool-cli validate`
+- `codegraph-cli analyze|status|context|impact`
 - `intake-cli inspect|url|file|folder|stage`
 - `promote-cli inspect|note`
 
-Deferred:
-
-- `tool-cli call`
-- memory-backed registry mode
-- bootstrap and artifact retrieval concerns
-
-Operating rule:
-
-- tools are called only when needed
-- tool availability should remain understandable from a compact context payload
-- tool-cli should reduce ambient tool noise, not increase it
-
-Approved tools can now also declare an availability posture:
-
-- `required`
-- `default`
-- `scoped`
-
-That posture determines whether a tool belongs in normal context or should remain discoverable and inspectable until a session explicitly needs it.
-
-Approved tools can also declare status:
-
-- `active`
-- `planned`
-
-Planned tools are part of the planning surface and `inspect` output, but they stay out of active emitted context unless explicitly included.
-
-Current active companion binary:
-
-- `intake-cli` for local-first URL, file, folder, and PDF normalization into Cairn inbox artifacts
-- `promote-cli` for deliberate promotion of reviewed Cairn notes into memory-cli
-
-Current intake ergonomics:
-
-- `--title` can override the staged artifact title
-- `CAIRN_VAULT` can provide the default vault path
-- HTML normalization prefers `main`/`article` content and resolves discovered links against the source URL when possible
-- staged intake artifacts include a compact review scaffold for triage and later memory-cli promotion notes
-
-Current active tool-cli intake entries:
-
-- `cairn.intake.inspect_source`
-- `cairn.intake.normalize_source`
-- `cairn.memory.promote_note`
+`inspect` prefers an exact tool-system ID, but may resolve a unique query. Ambiguous queries fail with candidate IDs rather than guessing.
 
 ## Registry Contract
 
@@ -76,25 +39,27 @@ V1 uses a config-backed registry with two trust tiers:
 - approved: repo-backed and supported
 - local: operator-managed and opt-in
 
-Approved tools should live under:
+Approved tool systems live under:
 
 - `products/tool-cli/registry/approved-tools.yaml`
 
-Local overlays are expected under repo-local runtime state:
+Local overlays are expected under:
 
 - `.cairn/tools/registry.yaml`
 
+The registry stores:
+
+- tool-system identity and guidance
+- bounded capabilities for each system
+- capability status and availability posture
+- stage affinity
+- call contract
+- minimal parameter schema
+
 ## Observability
 
-tool-cli should follow the memory-cli telemetry posture:
+tool-cli follows the memory-cli telemetry posture:
 
 - OpenTelemetry is the tracing and metrics standard
-- tool discovery, context emission, validation, and later execution paths must emit traceable spans
+- discovery, context emission, validation, and future execution paths emit traceable spans
 - no separate observability framework should be introduced
-
-## References
-
-- `docs/product/tooling/TOOLCLI_V1.md`
-- `docs/product/tooling/MODEL_TOOL_INTERFACE_PREP.md`
-- `docs/decisions/ADR-0005-toolcli-v1-trust-and-registry-policy.md`
-- `docs/decisions/ADR-0006-toolcli-telemetry-and-dependency-policy.md`

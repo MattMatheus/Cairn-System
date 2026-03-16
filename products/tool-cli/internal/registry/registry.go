@@ -1,16 +1,16 @@
 package registry
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 
 	"toolcli/internal/types"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -73,14 +73,17 @@ func LoadFile(path, tier string) (types.Registry, error) {
 	if err != nil {
 		return types.Registry{}, err
 	}
-	reg, err := parseYAML(data)
-	if err != nil {
+	var reg types.Registry
+	if err := yaml.Unmarshal(data, &reg); err != nil {
 		return types.Registry{}, fmt.Errorf("%s: %w", path, err)
 	}
-	for i := range reg.Tools {
-		reg.Tools[i].Status = normalizeStatus(reg.Tools[i].Status)
-		reg.Tools[i].Availability = normalizeAvailability(reg.Tools[i].Availability)
-		reg.Tools[i].SupportTier = tier
+	for i := range reg.Systems {
+		reg.Systems[i].Status = normalizeStatus(reg.Systems[i].Status)
+		reg.Systems[i].SupportTier = tier
+		for j := range reg.Systems[i].Capabilities {
+			reg.Systems[i].Capabilities[j].Status = normalizeStatus(reg.Systems[i].Capabilities[j].Status)
+			reg.Systems[i].Capabilities[j].Availability = normalizeAvailability(reg.Systems[i].Capabilities[j].Availability)
+		}
 	}
 	return reg, nil
 }
@@ -102,177 +105,193 @@ func Validate(reg types.Registry) error {
 		StatusActive:  {},
 		StatusPlanned: {},
 	}
-	for _, tool := range reg.Tools {
-		if strings.TrimSpace(tool.ID) == "" {
-			return errors.New("tool id is required")
+	for _, system := range reg.Systems {
+		if strings.TrimSpace(system.ID) == "" {
+			return errors.New("tool system id is required")
 		}
-		if _, ok := seen[tool.ID]; ok {
-			return fmt.Errorf("duplicate tool id: %s", tool.ID)
+		if _, ok := seen[system.ID]; ok {
+			return fmt.Errorf("duplicate tool system id: %s", system.ID)
 		}
-		seen[tool.ID] = struct{}{}
-		if strings.TrimSpace(tool.Name) == "" {
-			return fmt.Errorf("tool %s missing name", tool.ID)
+		seen[system.ID] = struct{}{}
+		if strings.TrimSpace(system.Name) == "" {
+			return fmt.Errorf("tool system %s missing name", system.ID)
 		}
-		if strings.TrimSpace(tool.Description) == "" {
-			return fmt.Errorf("tool %s missing description", tool.ID)
+		if strings.TrimSpace(system.Description) == "" {
+			return fmt.Errorf("tool system %s missing description", system.ID)
 		}
-		if strings.TrimSpace(tool.Call.Type) == "" {
-			return fmt.Errorf("tool %s missing call.type", tool.ID)
+		if _, ok := validStatus[normalizeStatus(system.Status)]; !ok {
+			return fmt.Errorf("tool system %s has invalid status value: %s", system.ID, system.Status)
 		}
-		availability := normalizeAvailability(tool.Availability)
-		if _, ok := validAvailability[availability]; !ok {
-			return fmt.Errorf("tool %s has invalid availability value: %s", tool.ID, tool.Availability)
+		if len(system.Capabilities) == 0 {
+			return fmt.Errorf("tool system %s missing capabilities", system.ID)
 		}
-		status := normalizeStatus(tool.Status)
-		if _, ok := validStatus[status]; !ok {
-			return fmt.Errorf("tool %s has invalid status value: %s", tool.ID, tool.Status)
-		}
-		for _, stage := range tool.StageAffinity {
-			if _, ok := validStages[stage]; !ok {
-				return fmt.Errorf("tool %s has invalid stage_affinity value: %s", tool.ID, stage)
+		capSeen := map[string]struct{}{}
+		for _, capability := range system.Capabilities {
+			if strings.TrimSpace(capability.ID) == "" {
+				return fmt.Errorf("tool system %s has capability missing id", system.ID)
 			}
-		}
-		for _, field := range tool.Schema {
-			if strings.TrimSpace(field.Name) == "" {
-				return fmt.Errorf("tool %s has schema entry missing name", tool.ID)
+			if _, ok := capSeen[capability.ID]; ok {
+				return fmt.Errorf("tool system %s has duplicate capability id: %s", system.ID, capability.ID)
 			}
-			if strings.TrimSpace(field.Type) == "" {
-				return fmt.Errorf("tool %s schema field %s missing type", tool.ID, field.Name)
+			capSeen[capability.ID] = struct{}{}
+			if strings.TrimSpace(capability.Name) == "" {
+				return fmt.Errorf("tool system %s capability %s missing name", system.ID, capability.ID)
+			}
+			if strings.TrimSpace(capability.Description) == "" {
+				return fmt.Errorf("tool system %s capability %s missing description", system.ID, capability.ID)
+			}
+			if strings.TrimSpace(capability.Call.Type) == "" {
+				return fmt.Errorf("tool system %s capability %s missing call.type", system.ID, capability.ID)
+			}
+			if _, ok := validAvailability[normalizeAvailability(capability.Availability)]; !ok {
+				return fmt.Errorf("tool system %s capability %s has invalid availability value: %s", system.ID, capability.ID, capability.Availability)
+			}
+			if _, ok := validStatus[normalizeStatus(capability.Status)]; !ok {
+				return fmt.Errorf("tool system %s capability %s has invalid status value: %s", system.ID, capability.ID, capability.Status)
+			}
+			for _, stage := range capability.StageAffinity {
+				if _, ok := validStages[stage]; !ok {
+					return fmt.Errorf("tool system %s capability %s has invalid stage_affinity value: %s", system.ID, capability.ID, stage)
+				}
+			}
+			for _, field := range capability.Schema {
+				if strings.TrimSpace(field.Name) == "" {
+					return fmt.Errorf("tool system %s capability %s has schema entry missing name", system.ID, capability.ID)
+				}
+				if strings.TrimSpace(field.Type) == "" {
+					return fmt.Errorf("tool system %s capability %s schema field %s missing type", system.ID, capability.ID, field.Name)
+				}
 			}
 		}
 	}
 	return nil
 }
 
-func FilterForContext(tools []types.Tool, includeScoped, includePlanned bool, query string) []types.Tool {
-	if includeScoped || strings.TrimSpace(query) != "" {
-		if includePlanned {
-			return append([]types.Tool(nil), tools...)
-		}
-		filtered := make([]types.Tool, 0, len(tools))
-		for _, tool := range tools {
-			if normalizeStatus(tool.Status) == StatusPlanned {
-				continue
-			}
-			filtered = append(filtered, tool)
-		}
-		return filtered
-	}
-	filtered := make([]types.Tool, 0, len(tools))
-	for _, tool := range tools {
-		if normalizeStatus(tool.Status) == StatusPlanned && !includePlanned {
-			continue
-		}
-		if normalizeAvailability(tool.Availability) == AvailabilityScoped {
-			continue
-		}
-		filtered = append(filtered, tool)
-	}
-	return filtered
-}
-
-func FindByID(tools []types.Tool, id string) (types.Tool, bool) {
-	id = strings.TrimSpace(id)
-	for _, tool := range tools {
-		if tool.ID == id {
-			return tool, true
-		}
-	}
-	return types.Tool{}, false
-}
-
-func FilterByStage(tools []types.Tool, stage string) []types.Tool {
+func FilterByStage(systems []types.ToolSystem, stage string) []types.ToolSystem {
 	stage = strings.TrimSpace(stage)
 	if stage == "" {
-		return append([]types.Tool(nil), tools...)
+		return cloneSystems(systems)
 	}
-	var filtered []types.Tool
-	for _, tool := range tools {
-		if len(tool.StageAffinity) == 0 {
-			filtered = append(filtered, tool)
+	filtered := make([]types.ToolSystem, 0, len(systems))
+	for _, system := range systems {
+		matched := filterCapabilitiesByStage(system.Capabilities, stage)
+		if len(matched) == 0 {
 			continue
 		}
-		for _, candidate := range tool.StageAffinity {
-			if candidate == stage {
-				filtered = append(filtered, tool)
-				break
-			}
-		}
+		system.Capabilities = matched
+		filtered = append(filtered, system)
 	}
 	return filtered
 }
 
-func FilterByTag(tools []types.Tool, tag string) []types.Tool {
+func FilterByTag(systems []types.ToolSystem, tag string) []types.ToolSystem {
 	tag = strings.TrimSpace(strings.ToLower(tag))
 	if tag == "" {
-		return append([]types.Tool(nil), tools...)
+		return cloneSystems(systems)
 	}
-	var filtered []types.Tool
-	for _, tool := range tools {
-		for _, candidate := range tool.Tags {
-			if strings.ToLower(candidate) == tag {
-				filtered = append(filtered, tool)
-				break
-			}
+	filtered := make([]types.ToolSystem, 0, len(systems))
+	for _, system := range systems {
+		if containsFold(system.Tags, tag) || capabilityTagMatch(system.Capabilities, tag) {
+			filtered = append(filtered, system)
 		}
 	}
 	return filtered
 }
 
-func Discover(tools []types.Tool, query string) []types.Tool {
+func FilterForContext(systems []types.ToolSystem, includeScoped, includePlanned bool, query string) []types.ToolSystem {
+	filtered := make([]types.ToolSystem, 0, len(systems))
+	for _, system := range systems {
+		if normalizeStatus(system.Status) == StatusPlanned && !includePlanned {
+			continue
+		}
+		kept := make([]types.Capability, 0, len(system.Capabilities))
+		for _, capability := range system.Capabilities {
+			if normalizeStatus(capability.Status) == StatusPlanned && !includePlanned {
+				continue
+			}
+			if !includeScoped && strings.TrimSpace(query) == "" && normalizeAvailability(capability.Availability) == AvailabilityScoped {
+				continue
+			}
+			kept = append(kept, capability)
+		}
+		if len(kept) == 0 {
+			continue
+		}
+		system.Capabilities = kept
+		filtered = append(filtered, system)
+	}
+	return filtered
+}
+
+func FindByID(systems []types.ToolSystem, id string) (types.ToolSystem, bool) {
+	id = strings.TrimSpace(id)
+	for _, system := range systems {
+		if system.ID == id {
+			return system, true
+		}
+	}
+	return types.ToolSystem{}, false
+}
+
+func Discover(systems []types.ToolSystem, query string) []types.ToolSystem {
 	query = strings.TrimSpace(strings.ToLower(query))
 	if query == "" {
-		return append([]types.Tool(nil), tools...)
+		return cloneSystems(systems)
 	}
 	terms := strings.Fields(query)
 	type scored struct {
-		tool  types.Tool
-		score int
+		system types.ToolSystem
+		score  int
 	}
 	var matches []scored
-	for _, tool := range tools {
-		haystack := strings.ToLower(strings.Join([]string{
-			tool.ID,
-			tool.Name,
-			tool.Description,
-			strings.Join(tool.Tags, " "),
-			strings.Join(tool.StageAffinity, " "),
-		}, " "))
+	for _, system := range systems {
 		score := 0
 		for _, term := range terms {
-			if strings.Contains(haystack, term) {
-				score++
-			}
+			score += matchSystemTermScore(system, term)
 		}
 		if score > 0 {
-			matches = append(matches, scored{tool: tool, score: score})
+			matches = append(matches, scored{system: system, score: score})
 		}
 	}
 	sort.SliceStable(matches, func(i, j int) bool {
 		if matches[i].score == matches[j].score {
-			return matches[i].tool.ID < matches[j].tool.ID
+			return matches[i].system.ID < matches[j].system.ID
 		}
 		return matches[i].score > matches[j].score
 	})
-	out := make([]types.Tool, 0, len(matches))
+	out := make([]types.ToolSystem, 0, len(matches))
 	for _, match := range matches {
-		out = append(out, match.tool)
+		out = append(out, match.system)
 	}
 	return out
 }
 
+func normalizeStatus(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return StatusActive
+	}
+	return strings.ToLower(strings.TrimSpace(value))
+}
+
+func normalizeAvailability(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return AvailabilityDefault
+	}
+	return strings.ToLower(strings.TrimSpace(value))
+}
+
 func mergeRegistries(approved, local types.Registry) (types.Registry, error) {
 	merged := types.Registry{Version: 1}
-	merged.Tools = append(merged.Tools, approved.Tools...)
+	merged.Systems = append(merged.Systems, approved.Systems...)
 	seen := map[string]struct{}{}
-	for _, tool := range approved.Tools {
-		seen[tool.ID] = struct{}{}
+	for _, system := range approved.Systems {
+		seen[system.ID] = struct{}{}
 	}
-	for _, tool := range local.Tools {
-		if _, ok := seen[tool.ID]; ok {
-			return types.Registry{}, fmt.Errorf("duplicate tool id across approved and local registries: %s", tool.ID)
+	for _, system := range local.Systems {
+		if _, ok := seen[system.ID]; ok {
+			return types.Registry{}, fmt.Errorf("duplicate tool system id across approved and local registries: %s", system.ID)
 		}
-		merged.Tools = append(merged.Tools, tool)
+		merged.Systems = append(merged.Systems, system)
 	}
 	return merged, nil
 }
@@ -292,231 +311,94 @@ func findRepoRoot(start string) (string, error) {
 	}
 }
 
-func parseYAML(data []byte) (types.Registry, error) {
-	lines := preprocessLines(data)
-	reg := types.Registry{}
-	var currentTool *types.Tool
-	var currentSchema *types.SchemaField
-	inTools := false
-	inSchema := false
-	inCall := false
+func cloneSystems(systems []types.ToolSystem) []types.ToolSystem {
+	cloned := make([]types.ToolSystem, 0, len(systems))
+	for _, system := range systems {
+		system.Capabilities = append([]types.Capability(nil), system.Capabilities...)
+		cloned = append(cloned, system)
+	}
+	return cloned
+}
 
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		indent := countIndent(line)
-		switch {
-		case trimmed == "tools:":
-			inTools = true
-			inSchema = false
-			inCall = false
-		case strings.HasPrefix(trimmed, "version:"):
-			value := strings.TrimSpace(strings.TrimPrefix(trimmed, "version:"))
-			version, err := strconv.Atoi(value)
-			if err != nil {
-				return types.Registry{}, fmt.Errorf("parse version: %w", err)
-			}
-			reg.Version = version
-		case inTools && trimmed == "tools: []":
-			reg.Tools = nil
-		case inTools && indent == 2 && strings.HasPrefix(trimmed, "- "):
-			inSchema = false
-			inCall = false
-			currentSchema = nil
-			reg.Tools = append(reg.Tools, types.Tool{})
-			currentTool = &reg.Tools[len(reg.Tools)-1]
-			if err := assignToolField(currentTool, strings.TrimSpace(strings.TrimPrefix(trimmed, "- "))); err != nil {
-				return types.Registry{}, err
-			}
-		case currentTool != nil && indent == 4 && trimmed == "call:":
-			inCall = true
-			inSchema = false
-			currentSchema = nil
-		case currentTool != nil && indent == 4 && trimmed == "schema:":
-			inSchema = true
-			inCall = false
-		case currentTool != nil && inCall && indent >= 6:
-			if err := assignCallField(&currentTool.Call, trimmed); err != nil {
-				return types.Registry{}, err
-			}
-		case currentTool != nil && inSchema && indent >= 6 && strings.HasPrefix(strings.TrimSpace(line), "- "):
-			currentTool.Schema = append(currentTool.Schema, types.SchemaField{})
-			currentSchema = &currentTool.Schema[len(currentTool.Schema)-1]
-			if err := assignSchemaField(currentSchema, strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(line), "- "))); err != nil {
-				return types.Registry{}, err
-			}
-		case currentTool != nil && inSchema && currentSchema != nil && indent >= 8:
-			if err := assignSchemaField(currentSchema, trimmed); err != nil {
-				return types.Registry{}, err
-			}
-		case currentTool != nil && indent >= 4:
-			inCall = false
-			inSchema = false
-			currentSchema = nil
-			if err := assignToolField(currentTool, trimmed); err != nil {
-				return types.Registry{}, err
-			}
+func filterCapabilitiesByStage(capabilities []types.Capability, stage string) []types.Capability {
+	filtered := make([]types.Capability, 0, len(capabilities))
+	for _, capability := range capabilities {
+		if len(capability.StageAffinity) == 0 || containsExact(capability.StageAffinity, stage) {
+			filtered = append(filtered, capability)
 		}
 	}
-
-	if reg.Version == 0 {
-		return types.Registry{}, errors.New("version is required")
-	}
-	return reg, nil
+	return filtered
 }
 
-func preprocessLines(data []byte) []string {
-	scanner := bufio.NewScanner(strings.NewReader(string(data)))
-	var lines []string
-	for scanner.Scan() {
-		line := scanner.Text()
-		if idx := strings.Index(line, "#"); idx >= 0 {
-			line = line[:idx]
-		}
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
-		lines = append(lines, line)
-	}
-	return lines
-}
-
-func countIndent(line string) int {
-	count := 0
-	for _, r := range line {
-		if r != ' ' {
-			break
-		}
-		count++
-	}
-	return count
-}
-
-func assignToolField(tool *types.Tool, raw string) error {
-	key, value, err := splitKeyValue(raw)
-	if err != nil {
-		return err
-	}
-	switch key {
-	case "id":
-		tool.ID = value
-	case "name":
-		tool.Name = value
-	case "description":
-		tool.Description = value
-	case "status":
-		tool.Status = normalizeStatus(value)
-	case "tags":
-		tool.Tags = parseInlineList(value)
-	case "stage_affinity":
-		tool.StageAffinity = parseInlineList(value)
-	case "availability":
-		tool.Availability = normalizeAvailability(value)
-	case "guidance":
-		tool.Guidance = value
-	case "complements":
-		tool.Complements = parseInlineList(value)
-	case "credential":
-		tool.CredentialRef = value
-	case "support_tier":
-		tool.SupportTier = value
-	}
-	return nil
-}
-
-func assignCallField(call *types.ToolCall, raw string) error {
-	key, value, err := splitKeyValue(raw)
-	if err != nil {
-		return err
-	}
-	switch key {
-	case "type":
-		call.Type = value
-	case "method":
-		call.Method = value
-	case "url":
-		call.URL = value
-	case "command":
-		call.Command = value
-	}
-	return nil
-}
-
-func assignSchemaField(field *types.SchemaField, raw string) error {
-	key, value, err := splitKeyValue(raw)
-	if err != nil {
-		return err
-	}
-	switch key {
-	case "name":
-		field.Name = value
-	case "type":
-		field.Type = value
-	case "required":
-		field.Required = strings.EqualFold(value, "true")
-	case "description":
-		field.Description = value
-	case "enum":
-		field.Enum = parseInlineList(value)
-	}
-	return nil
-}
-
-func splitKeyValue(raw string) (string, string, error) {
-	parts := strings.SplitN(raw, ":", 2)
-	if len(parts) != 2 {
-		return "", "", fmt.Errorf("expected key:value pair, got %q", raw)
-	}
-	return strings.TrimSpace(parts[0]), trimQuotes(strings.TrimSpace(parts[1])), nil
-}
-
-func trimQuotes(v string) string {
-	v = strings.TrimSpace(v)
-	v = strings.Trim(v, "\"")
-	v = strings.Trim(v, "'")
-	return v
-}
-
-func parseInlineList(v string) []string {
-	v = strings.TrimSpace(v)
-	if v == "" || v == "[]" {
-		return nil
-	}
-	v = strings.TrimPrefix(v, "[")
-	v = strings.TrimSuffix(v, "]")
-	if strings.TrimSpace(v) == "" {
-		return nil
-	}
-	parts := strings.Split(v, ",")
-	out := make([]string, 0, len(parts))
-	for _, part := range parts {
-		item := trimQuotes(part)
-		if item != "" {
-			out = append(out, item)
+func capabilityTagMatch(capabilities []types.Capability, tag string) bool {
+	for _, capability := range capabilities {
+		if containsFold(capability.Tags, tag) {
+			return true
 		}
 	}
-	return out
+	return false
 }
 
-func normalizeAvailability(v string) string {
-	switch strings.TrimSpace(strings.ToLower(v)) {
-	case "", AvailabilityDefault:
-		return AvailabilityDefault
-	case AvailabilityRequired:
-		return AvailabilityRequired
-	case AvailabilityScoped:
-		return AvailabilityScoped
-	default:
-		return strings.TrimSpace(strings.ToLower(v))
+func containsFold(values []string, target string) bool {
+	for _, value := range values {
+		if strings.ToLower(value) == target {
+			return true
+		}
 	}
+	return false
 }
 
-func normalizeStatus(v string) string {
-	switch strings.TrimSpace(strings.ToLower(v)) {
-	case "", StatusActive:
-		return StatusActive
-	case StatusPlanned:
-		return StatusPlanned
-	default:
-		return strings.TrimSpace(strings.ToLower(v))
+func containsExact(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
 	}
+	return false
+}
+
+func matchSystemTermScore(system types.ToolSystem, term string) int {
+	score := 0
+	score += weightedContains(system.ID, term, 10)
+	score += weightedContains(system.Name, term, 8)
+	score += weightedContains(system.Description, term, 4)
+	score += weightedContains(system.Guidance, term, 3)
+	score += weightedContains(strings.Join(system.Tags, " "), term, 6)
+	score += weightedContains(strings.Join(system.Complements, " "), term, 2)
+	for _, capability := range system.Capabilities {
+		score += weightedContains(capability.ID, term, 5)
+		score += weightedContains(capability.Name, term, 4)
+		score += weightedContains(capability.Description, term, 3)
+		score += weightedContains(capability.Guidance, term, 2)
+		score += weightedContains(strings.Join(capability.Tags, " "), term, 2)
+		score += weightedContains(strings.Join(capability.StageAffinity, " "), term, 1)
+		score += weightedContains(capability.Call.Type, term, 1)
+		score += weightedContains(capability.Call.Method, term, 1)
+		score += weightedContains(capability.Call.URL, term, 1)
+		score += weightedContains(capability.Call.Command, term, 2)
+		for _, field := range capability.Schema {
+			score += weightedContains(field.Name, term, 2)
+			score += weightedContains(field.Type, term, 1)
+			score += weightedContains(field.Description, term, 2)
+			score += weightedContains(strings.Join(field.Enum, " "), term, 1)
+		}
+	}
+	return score
+}
+
+func weightedContains(value, term string, weight int) int {
+	if weight <= 0 {
+		return 0
+	}
+	value = strings.TrimSpace(strings.ToLower(value))
+	if value == "" || term == "" {
+		return 0
+	}
+	if value == term {
+		return weight * 2
+	}
+	if strings.Contains(value, term) {
+		return weight
+	}
+	return 0
 }

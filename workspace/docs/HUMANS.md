@@ -41,6 +41,7 @@ For the shortest supported internal-beta path, start with:
 - `products/work-harness/operating-system-vault/README.md`
 - `products/work-harness/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
 - `products/work-harness/operating-system-vault/STAGE_EXIT_GATES.md`
+- When codegraph work is likely, run `products/work-harness/tools/check_gitnexus_readiness.sh`
 
 ### Work
 - `workspace/work/`

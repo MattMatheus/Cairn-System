@@ -1,31 +1,45 @@
 # Current Process Handoff
 
 ## Current Stage
-- Platform checkpoint saved and pushed to `origin/main` at commit `2aa36f1`.
+- Cairn platform rename is complete and the repo no longer uses `Athena` naming internally.
 - Active platform surface is unified under `products/`, `tools/`, `workspace/`, `docs/`, and repo-local runtime `.cairn/`.
-- tool-cli is now scaffolded and integrated into work harness stage launch as approved `tool_context`.
+- tool-cli now models a small set of tool systems with bounded capabilities instead of many operation-level tools.
 
 ## Active Process Stories
 - memory-cli:
-  - sqlite-first default path working
-  - optional Mongo-backed index path working
-  - embedding-backed validation path working against the local Ollama host when reachable
+  - intentionally restrained; no broad expansion work is active right now
 - work harness:
-  - launcher and observer scripts adapted to the unified repo shape
-  - launcher now emits approved tool context through tool-cli
+  - now owns explicit GitNexus readiness preflight through `products/work-harness/tools/check_gitnexus_readiness.sh`
+  - startup/operator docs include GitNexus preflight only when codegraph work is likely
 - tool-cli:
-  - v1 design and ADRs are written
-  - `tool-cli` scaffold exists with `discover`, `context`, `list`, and `validate`
-  - approved registry default lives at `products/tool-cli/registry/approved-tools.yaml`
+  - registry shape is now tool-system based
+  - approved systems are `cairn`, `obsidian`, `firecrawl`, and `gitnexus`
+  - `gitnexus` is active only through the bounded `codegraph-cli` wrapper
+  - `firecrawl` remains planned
+  - approved registry lives at `products/tool-cli/registry/approved-tools.yaml`
+  - bounded GitNexus wrapper commands exist at `products/tool-cli/cmd/codegraph-cli`
 
 ## Risks
 - Historical work harness material still exists for traceability; active paths are much cleaner, but not every historical reference has been normalized.
-- tool-cli registry parsing is intentionally narrow and contract-driven to preserve the dependency policy.
-- Azure/bootstrap work is intentionally deferred and should stay deferred until the tool interface spec is settled.
+- GitNexus backend is not yet runnable in the current shell environment without additional local readiness:
+  - `node` must be available on `PATH`
+  - either `CAIRN_GITNEXUS_BIN` must point at a runnable binary, or the local checkout under `repos/untrusted/GitNexus/gitnexus` must be built so `dist/cli/index.js` exists
+- Full `go test ./...` in `products/tool-cli` still hits the known sandbox restriction in `internal/intake` because `httptest.NewServer` cannot open a local listener here.
 
 ## Next Improvement Target
-- Expand the approved tool-cli registry with a few more real platform tools.
-- Add tool-cli validation to shared platform checks.
-- Decide whether the next implementation slice is:
-  - stronger tool-cli context shaping and schema output, or
-  - beginning the formal tool interface spec on top of the existing prep/design docs.
+- Bring the local GitNexus backend to readiness in a controlled way:
+  - install/confirm `node`
+  - build the local GitNexus checkout or point Cairn at a pinned binary
+  - rerun `products/work-harness/tools/check_gitnexus_readiness.sh`
+- After GitNexus is runnable, exercise the bounded path end to end:
+  - `tool-cli inspect gitnexus`
+  - `codegraph-cli status --repo <path>`
+  - `codegraph-cli analyze --repo <path>`
+  - `codegraph-cli context --repo <path> <symbol>`
+  - `codegraph-cli impact --repo <path> --direction upstream <symbol>`
+- Keep the external-tool posture narrow. Do not widen GitNexus or Firecrawl beyond Cairn-owned wrappers without explicit review.
+
+## Verification Snapshot
+- `go test ./cmd/codegraph-cli ./cmd/tool-cli ./internal/codegraph ./internal/registry` passed in `products/tool-cli`
+- `products/work-harness/tools/test_gitnexus_readiness.sh` passed
+- `products/work-harness/tools/check_gitnexus_readiness.sh` currently fails with `node is required to run a built local GitNexus checkout`
