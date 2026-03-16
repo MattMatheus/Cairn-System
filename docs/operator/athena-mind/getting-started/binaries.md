@@ -2,7 +2,7 @@
 
 ## Summary
 
-AthenaPlatform now supports a canonical build path for precompiled CLI artifacts through Azure DevOps and the shared release build script.
+Cairn now supports a canonical build path for precompiled CLI artifacts through Azure DevOps and the shared release build script.
 
 ## Artifact Naming
 

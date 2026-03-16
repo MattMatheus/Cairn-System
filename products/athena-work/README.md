@@ -32,5 +32,5 @@ Work-system product boundary.
 
 ## Notes
 
-- AthenaWork is the active workflow product inside AthenaPlatform.
+- AthenaWork is the active workflow product inside Cairn.
 - Historical import context has been removed from the active platform surface.

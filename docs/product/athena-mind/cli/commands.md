@@ -1,11 +1,11 @@
 # CLI Commands
 
 ## Summary
-Command reference for the AthenaMind commands that are intentionally exposed in AthenaPlatform.
+Command reference for the AthenaMind commands that are intentionally exposed in Cairn.
 
 The research repo may keep a broader command surface, but the platform product exposes only the small sqlite-first workflow.
 
-Recommended runtime pattern for AthenaPlatform:
+Recommended runtime pattern for Cairn:
 
 - `ATHENA_HOME="$PWD/.athena"`
 - `ATHENA_MEMORY_ROOT="$ATHENA_HOME/memory/default"`
@@ -79,7 +79,7 @@ Optional:
 - `--telemetry-file`
 
 Note:
-- AthenaPlatform retrieval is local-first and sqlite-backed in the stripped personal product
+- Cairn retrieval is local-first and sqlite-backed in the stripped personal product
 - broader backend experimentation belongs in the research repo, not the platform product contract
 
 ## `snapshot`

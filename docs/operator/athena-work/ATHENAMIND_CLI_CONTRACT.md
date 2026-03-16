@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the initial integration contract between AthenaWork and AthenaMind inside AthenaPlatform.
+This document defines the initial integration contract between AthenaWork and AthenaMind inside Cairn.
 
 The contract is intentionally simple:
 
@@ -111,7 +111,7 @@ Create reusable planning guidance:
 ## V1 Constraints
 
 1. Default storage is local and sqlite-first.
-2. AthenaWork should assume AthenaMind is sqlite-only in AthenaPlatform unless the product boundary is intentionally expanded again.
+2. AthenaWork should assume AthenaMind is sqlite-only in Cairn unless the product boundary is intentionally expanded again.
 3. AthenaWork should not depend on AthenaMind-specific internal packages.
 4. AthenaWork should not depend on AthenaUse-specific internal packages.
 5. The CLI boundary is the source of truth for product integration until a stronger service boundary is intentionally introduced.

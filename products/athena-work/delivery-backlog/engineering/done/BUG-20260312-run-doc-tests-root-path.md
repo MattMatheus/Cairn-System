@@ -23,7 +23,7 @@
 - `./products/athena-work/tools/run_doc_tests.sh` runs the intended AthenaWork doc/state-harness test suite from the repo root.
 
 ## Actual Behavior
-- The script exits immediately with `No such file or directory` for `/Users/mattmatheus/AthenaPlatform/tools/test_no_personal_paths.sh`.
+- The script exits immediately with `No such file or directory` for `/Users/mattmatheus/Cairn/tools/test_no_personal_paths.sh`.
 
 ## Reproduction Steps
 1. From the repo root, run `./products/athena-work/tools/run_doc_tests.sh`.
@@ -31,7 +31,7 @@
 3. See the command fail because the referenced file does not exist at that path.
 
 ## Evidence
-- `./products/athena-work/tools/run_doc_tests.sh: line 8: /Users/mattmatheus/AthenaPlatform/tools/test_no_personal_paths.sh: No such file or directory`
+- `./products/athena-work/tools/run_doc_tests.sh: line 8: /Users/mattmatheus/Cairn/tools/test_no_personal_paths.sh: No such file or directory`
 
 ## Suggested Fix Direction (Optional)
 - Fixed in the same bootstrap sequence by repointing the canonical doc-test entrypoint and its dependent AthenaWork tests to the current product-local paths, then rerunning `./products/athena-work/tools/run_doc_tests.sh` successfully.

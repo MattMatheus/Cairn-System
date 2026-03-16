@@ -12,7 +12,7 @@ usage() {
   cat <<EOF
 usage: tools/dev/build_release_artifacts.sh --version <label> [--out-dir <dir>]
 
-Builds AthenaPlatform CLI release artifacts for:
+Builds Cairn CLI release artifacts for:
   - darwin/arm64
   - windows/amd64
 EOF

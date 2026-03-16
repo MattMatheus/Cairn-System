@@ -1,8 +1,6 @@
-# AthenaPlatform
+# Cairn
 
-External brand direction: `Cairn`
-
-AthenaPlatform is the current internal platform workspace for the broader `Cairn` direction.
+This repository is the unified Cairn platform workspace.
 
 Today it contains the working Athena product family:
 
@@ -28,13 +26,14 @@ That means the platform should prefer local-first operation, explicit review, lo
 
 Current posture:
 
-- `Cairn` is the external umbrella brand and long-term outward-facing name
-- `AthenaPlatform`, `AthenaMind`, `AthenaUse`, and `AthenaWork` remain the current internal working names in this repository
+- the platform umbrella is `Cairn`
+- `AthenaMind`, `AthenaUse`, and `AthenaWork` remain the current internal product names in this repository
+- the GitHub repository name `cairn-system` is reserved to isolate the UI component, not to rename the platform umbrella again
 
 Rename policy:
 
-- avoid disruptive broad renames while product boundaries are still moving
-- prefer a later coordinated rename pass once command surfaces, repos, and docs are stable enough to change together
+- keep the platform umbrella on `Cairn`
+- defer product-family renames until command surfaces, binaries, and docs are stable enough to change together
 
 Today the platform contains:
 
@@ -57,7 +56,7 @@ Today the platform contains:
 ## Platform Layout
 
 ```text
-AthenaPlatform/
+Cairn/
   .athena/
   docs/
   products/

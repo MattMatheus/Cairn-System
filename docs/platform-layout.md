@@ -1,4 +1,4 @@
-# AthenaPlatform Layout
+# Cairn Layout
 
 ## Purpose
 
@@ -14,7 +14,7 @@ The platform must support:
 ## Canonical Root Tree
 
 ```text
-AthenaPlatform/
+Cairn/
   .athena/
     workspace/
     memory/

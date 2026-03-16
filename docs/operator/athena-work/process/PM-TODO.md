@@ -1,7 +1,7 @@
 # PM TODO
 
 Historical PM note snapshot preserved from earlier AthenaWork shaping work.
-Do not treat this file as the primary current PM operating board for AthenaPlatform.
+Do not treat this file as the primary current PM operating board for Cairn.
 
 Lightweight capture list for product/founder notes during active chat.
 

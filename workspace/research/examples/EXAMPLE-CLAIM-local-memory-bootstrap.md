@@ -13,7 +13,7 @@ sensitivity: internal
 
 ## Claim
 
-A small local bootstrap memory set can reduce startup friction for developer agents working inside AthenaPlatform.
+A small local bootstrap memory set can reduce startup friction for developer agents working inside Cairn.
 
 ## Test Plan
 

@@ -1,7 +1,7 @@
 # Go Toolchain Setup
 
 ## Purpose
-Ensure environments can run `go version` and module-scoped `go test ./...` for AthenaPlatform Go components.
+Ensure environments can run `go version` and module-scoped `go test ./...` for Cairn Go components.
 
 ## Required Version
 - Source of truth: `products/athena-mind/go.mod` and `products/athena-use/go.mod`

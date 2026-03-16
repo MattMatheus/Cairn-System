@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This folder contains root-level checks for the current AthenaPlatform v1 posture.
+This folder contains root-level checks for the current Cairn v1 posture.
 
 ## Current Checks
 

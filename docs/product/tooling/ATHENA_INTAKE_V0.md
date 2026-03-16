@@ -4,7 +4,7 @@ Status: initial implementation landed
 
 ## Purpose
 
-AthenaPlatform needs a lightweight ingestion path for messy external material without adopting a heavy crawling platform as a default dependency.
+Cairn needs a lightweight ingestion path for messy external material without adopting a heavy crawling platform as a default dependency.
 
 The target material is practical and narrow:
 
@@ -88,7 +88,7 @@ Explicitly not v0:
 - multi-worker crawl queues
 - agentic extraction loops
 
-## Placement In AthenaPlatform
+## Placement In Cairn
 
 Recommended placement:
 
@@ -177,4 +177,4 @@ GitNexus may deserve the same treatment later:
 
 - keep the useful structural-analysis value
 - challenge the surrounding runtime surface
-- decide whether a thinner local contract would fit AthenaPlatform better than adopting the full external product posture
+- decide whether a thinner local contract would fit Cairn better than adopting the full external product posture

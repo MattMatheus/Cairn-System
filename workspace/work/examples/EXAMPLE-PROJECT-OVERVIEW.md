@@ -11,7 +11,7 @@ sensitivity: internal
 
 # Example Project Overview
 
-This is a sample work note showing the kind of project context a developer might keep in the AthenaPlatform workspace.
+This is a sample work note showing the kind of project context a developer might keep in the Cairn workspace.
 
 ## Goal
 

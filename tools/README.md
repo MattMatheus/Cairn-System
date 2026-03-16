@@ -1,6 +1,6 @@
 # Tools
 
-Shared AthenaPlatform tooling from the repo root.
+Shared Cairn tooling from the repo root.
 
 ## Use These First
 

@@ -26,4 +26,4 @@
 - None
 
 ## Transition Rationale
-- AthenaPlatform now has a supported bootstrap path and a reproducible binary build contract, which is the right next step after alpha release authorization.
+- Cairn now has a supported bootstrap path and a reproducible binary build contract, which is the right next step after alpha release authorization.

@@ -286,7 +286,7 @@ func findRepoRoot(start string) (string, error) {
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", errors.New("unable to resolve AthenaPlatform repo root")
+			return "", errors.New("unable to resolve Cairn repo root")
 		}
 		dir = parent
 	}

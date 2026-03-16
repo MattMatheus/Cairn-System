@@ -3,7 +3,7 @@
 ## Summary
 Copy/paste examples for common CLI tasks.
 
-These examples cover the AthenaMind commands intentionally exposed in AthenaPlatform.
+These examples cover the AthenaMind commands intentionally exposed in Cairn.
 
 Recommended local setup:
 

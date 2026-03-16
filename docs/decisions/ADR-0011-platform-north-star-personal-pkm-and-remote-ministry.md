@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-AthenaPlatform started as a personal system, but the intended destination is broader.
+Cairn started as a personal system, but the intended destination is broader.
 
 The near-term operator is Matt:
 
@@ -27,7 +27,7 @@ The platform should not optimize for feature breadth, ambient cloud dependence, 
 
 ## Decision
 
-AthenaPlatform's north star is:
+Cairn's north star is:
 
 - personal PKM and disciplined human-agent work for Matt now
 - eventual utility as an offline-friendly, curated knowledge tool for remote ministry contexts later
@@ -59,7 +59,7 @@ Tradeoffs:
 
 ## Required Product Implications
 
-AthenaPlatform should prefer:
+Cairn should prefer:
 
 - local-first storage and retrieval
 - explicit staging and review before canonical promotion
@@ -67,7 +67,7 @@ AthenaPlatform should prefer:
 - outputs that remain useful outside a live service environment
 - provenance and authority metadata that survive export and reuse
 
-AthenaPlatform should avoid by default:
+Cairn should avoid by default:
 
 - mandatory hosted-service dependencies
 - always-on MCP or agent-runtime assumptions

@@ -18,7 +18,7 @@ That pattern works for experienced operators, but it is a poor default for inter
 
 ## Decision
 
-AthenaPlatform will adopt a repo-local `.athena/` directory as the default runtime boundary.
+Cairn will adopt a repo-local `.athena/` directory as the default runtime boundary.
 
 The repository itself remains the committed product and documentation surface.
 

@@ -1,6 +1,6 @@
 # Developer Tools
 
-Local developer helpers for running, validating, and operating AthenaPlatform.
+Local developer helpers for running, validating, and operating Cairn.
 
 ## Current Helpers
 

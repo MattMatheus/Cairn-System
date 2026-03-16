@@ -9,7 +9,7 @@ AthenaUse originally split tools into two trust tiers:
 - approved
 - local
 
-That trust split is still useful, but it is not enough for the personal AthenaPlatform workflow.
+That trust split is still useful, but it is not enough for the personal Cairn workflow.
 
 The missing distinction is inside the approved tier itself:
 

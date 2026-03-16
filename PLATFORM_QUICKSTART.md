@@ -1,4 +1,4 @@
-# AthenaPlatform Quickstart
+# Cairn Quickstart
 
 This quickstart shows the intended developer path through the unified platform.
 

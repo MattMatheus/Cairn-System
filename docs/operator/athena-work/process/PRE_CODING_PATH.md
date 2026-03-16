@@ -1,7 +1,7 @@
 # Pre-Coding Path (Manual PM Plan)
 
 Historical planning snapshot preserved from the standalone AthenaWork migration.
-Do not use this file as the primary operator path for AthenaPlatform.
+Do not use this file as the primary operator path for Cairn.
 Use `INTERNAL_BETA.md`, `PLATFORM_QUICKSTART.md`, and `docs/operator/athena-work/process/CYCLE_INDEX.md` instead.
 
 Purpose: complete process and quality hardening before state-harness implementation work.

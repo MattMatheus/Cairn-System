@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-AthenaUse is intended to become the governed tool-context layer for AthenaPlatform.
+AthenaUse is intended to become the governed tool-context layer for Cairn.
 
 Before implementation starts, the platform needs a clear rule for:
 

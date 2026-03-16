@@ -1,6 +1,6 @@
 # HUMANS
 
-Operator guide for AthenaWork inside AthenaPlatform.
+Operator guide for AthenaWork inside Cairn.
 
 ## Summary
 Workflow: Planning (as needed) -> Architect (as needed) -> Engineering -> QA -> PM.

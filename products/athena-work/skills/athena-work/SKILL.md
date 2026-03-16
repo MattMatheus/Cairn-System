@@ -9,7 +9,7 @@ Use this skill when the task is about stage workflow, backlog progression, QA/PM
 
 ## Product Intent
 
-AthenaWork in AthenaPlatform combines:
+AthenaWork in Cairn combines:
 
 - executable staged workflow machinery
 - markdown-native workspace structure

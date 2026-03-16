@@ -4,7 +4,7 @@ Status: proposed
 
 ## Purpose
 
-AthenaPlatform needs a scoped way to analyze old, complex, and poorly documented repositories without adopting a full ambient MCP/editor-integration lifestyle.
+Cairn needs a scoped way to analyze old, complex, and poorly documented repositories without adopting a full ambient MCP/editor-integration lifestyle.
 
 GitNexus is the current reference point because its core value is real:
 
@@ -77,7 +77,7 @@ Explicitly not v0:
 - repo-specific skill generation as a required path
 - autonomous refactoring or rename application
 
-## Placement In AthenaPlatform
+## Placement In Cairn
 
 Recommended placement:
 
@@ -87,7 +87,7 @@ Recommended placement:
 Reasoning:
 
 - the problem is tool selection and scoped availability, which belongs to AthenaUse
-- AthenaPlatform does not need to duplicate GitNexus's graph engine unless the retained surface proves too heavy
+- Cairn does not need to duplicate GitNexus's graph engine unless the retained surface proves too heavy
 - keeping the contract thin makes a future backend swap possible
 
 If later experience shows GitNexus remains too heavy even behind a thin contract, then a smaller local graph/index tool can be considered. That is not the right first move.

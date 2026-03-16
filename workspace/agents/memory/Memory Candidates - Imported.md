@@ -14,7 +14,7 @@ review_state: pending
 
 # Memory Candidates - Imported
 
-This is a legacy imported candidate list. Many linked references still point to work and research content that has not yet been imported into the canonical AthenaPlatform workspace.
+This is a legacy imported candidate list. Many linked references still point to work and research content that has not yet been imported into the canonical Cairn workspace.
 
 Treat this file as a historical intake artifact, not as a complete active memory catalog.
 

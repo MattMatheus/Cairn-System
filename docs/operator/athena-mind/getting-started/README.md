@@ -35,4 +35,4 @@ Recommended platform posture:
 - Command deep dive: `docs/product/athena-mind/cli/commands.md`
 - Product scope: `products/athena-mind/README.md`
 - Repo-local runtime contract: `docs/runtime-layout.md`
-- OpenTelemetry remains required across AthenaPlatform systems even while AthenaMind's public command surface stays small
+- OpenTelemetry remains required across Cairn systems even while AthenaMind's public command surface stays small

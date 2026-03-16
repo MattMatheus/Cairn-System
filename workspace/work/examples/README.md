@@ -1,6 +1,6 @@
 # Example Work
 
-This folder contains minimal example content for understanding the unified AthenaPlatform workflow.
+This folder contains minimal example content for understanding the unified Cairn workflow.
 
 The examples are intentionally small and safe:
 

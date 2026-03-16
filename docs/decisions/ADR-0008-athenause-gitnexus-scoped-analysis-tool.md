@@ -6,7 +6,7 @@ Status: Accepted
 
 AthenaUse exists to keep the tool surface small, relevant, and stage-scoped.
 
-The personal AthenaPlatform direction is intentionally resistant to loading broad MCP server surfaces into every agent session. The problem is not MCP in principle; the problem is ambient tool noise, startup overhead, and focus drift when agents inherit large generic manifests by default.
+The personal Cairn direction is intentionally resistant to loading broad MCP server surfaces into every agent session. The problem is not MCP in principle; the problem is ambient tool noise, startup overhead, and focus drift when agents inherit large generic manifests by default.
 
 The target use case for GitNexus is narrow and practical:
 

@@ -131,4 +131,4 @@ Or in prose when the relationship matters:
 
 - [[DEVELOPMENT_COGNITION_GRAPH]]
 - [[AUTHORING_GRAPH_NODES]]
-- [canonical-sources/README.md](/home/matt/Workspace/repos/trusted/AthenaPlatform/docs/operator/athena-work/references/canonical-sources/README.md)
+- [canonical-sources/README.md](/home/matt/Workspace/repos/trusted/Cairn/docs/operator/athena-work/references/canonical-sources/README.md)

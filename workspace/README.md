@@ -1,6 +1,6 @@
 # Workspace
 
-Canonical markdown workspace surface for AthenaPlatform.
+Canonical markdown workspace surface for Cairn.
 
 This is the practical daily-use environment for developers using AthenaWork with AthenaMind-backed assistance.
 

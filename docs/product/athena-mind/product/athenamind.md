@@ -40,7 +40,7 @@ Default path:
 - `verify`
 - `snapshot`
 
-The AthenaPlatform product intentionally exposes only this smaller path.
+The Cairn product intentionally exposes only this smaller path.
 
 The broader AthenaMind research repo may continue to carry experimental commands and backend work, but those are not part of the default product contract here.
 

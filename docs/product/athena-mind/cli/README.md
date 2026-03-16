@@ -21,4 +21,4 @@ This section documents the full `memory-cli` command surface for AthenaMind user
 - `docs/operator/athena-mind/getting-started/binaries.md`
 - `docs/product/athena-mind/product/athenamind.md`
 - `products/athena-mind/README.md`
-- telemetry setup docs still need a dedicated AthenaPlatform import pass
+- telemetry setup docs still need a dedicated Cairn import pass

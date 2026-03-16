@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-AthenaPlatform needs a governed way to expose tools to agents without either:
+Cairn needs a governed way to expose tools to agents without either:
 
 - giving them no tool context
 - dumping a full unscoped manifest into every stage

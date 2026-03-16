@@ -12,7 +12,7 @@ Accepted for platform bootstrap.
 
 The imported AthenaMind module includes a broader historical CLI surface than the unified platform should emphasize initially.
 
-AthenaPlatform needs a practical command posture for developer use that stays simple and local-first.
+Cairn needs a practical command posture for developer use that stays simple and local-first.
 
 ## Decision
 

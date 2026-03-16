@@ -20,7 +20,7 @@
 - `./products/athena-work/tools/test_release_launch_authorization_workbench_v1.sh`: pass
 - `cd products/athena-use && go test ./...`: pass
 - `cd products/athena-mind && go test ./...`: pass
-- `./products/athena-work/tools/generate_launch_authorization_package.sh --root /Users/mattmatheus/AthenaPlatform`: pass; only remaining blocker after queue clear is direction confirmation
+- `./products/athena-work/tools/generate_launch_authorization_package.sh --root /Users/mattmatheus/Cairn`: pass; only remaining blocker after queue clear is direction confirmation
 
 ## Open Risks/Questions
 - Human confirmation is still intentionally required before this alpha can be considered shipped.

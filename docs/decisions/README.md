@@ -1,6 +1,6 @@
 # Decisions
 
-Architecture and product decisions for AthenaPlatform.
+Architecture and product decisions for Cairn.
 
 Initial expected topics:
 

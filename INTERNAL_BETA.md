@@ -1,6 +1,6 @@
 # Internal Beta
 
-This is the simplest supported starting path for internal AthenaPlatform testers.
+This is the simplest supported starting path for internal Cairn testers.
 
 ## Who This Is For
 

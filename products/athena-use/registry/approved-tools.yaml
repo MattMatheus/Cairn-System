@@ -2,7 +2,7 @@ version: 1
 tools:
   - id: athena.platform.smoke_v1
     name: Run Platform Smoke V1
-    description: Runs the supported sqlite-first AthenaPlatform smoke path from the repo root
+    description: Runs the supported sqlite-first Cairn smoke path from the repo root
     status: active
     availability: default
     tags: [athena, platform, smoke]

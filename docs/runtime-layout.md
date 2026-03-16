@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the recommended local runtime boundary for AthenaPlatform repositories.
+This document defines the recommended local runtime boundary for Cairn repositories.
 
 The default model is a repo-local `.athena/` directory that is ignored by git.
 

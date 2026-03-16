@@ -122,6 +122,6 @@ This keeps AthenaWork aligned with bounded attention instead of "load everything
 
 - [[CANONICAL_SOURCE_REGISTRY]]
 - [[AUTHORING_GRAPH_NODES]]
-- [AGENTS.md](/home/matt/Workspace/repos/trusted/AthenaPlatform/products/athena-work/AGENTS.md)
-- [HUMANS.md](/home/matt/Workspace/repos/trusted/AthenaPlatform/products/athena-work/HUMANS.md)
-- [DEVELOPMENT_CYCLE.md](/home/matt/Workspace/repos/trusted/AthenaPlatform/products/athena-work/DEVELOPMENT_CYCLE.md)
+- [AGENTS.md](/home/matt/Workspace/repos/trusted/Cairn/products/athena-work/AGENTS.md)
+- [HUMANS.md](/home/matt/Workspace/repos/trusted/Cairn/products/athena-work/HUMANS.md)
+- [DEVELOPMENT_CYCLE.md](/home/matt/Workspace/repos/trusted/Cairn/products/athena-work/DEVELOPMENT_CYCLE.md)

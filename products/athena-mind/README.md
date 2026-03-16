@@ -1,6 +1,6 @@
 # AthenaMind
 
-Slim AthenaMind product within AthenaPlatform.
+Slim AthenaMind product within Cairn.
 
 ## Product Posture
 
@@ -26,7 +26,7 @@ The practical v1 path is the local sqlite-first workflow:
 
 Within that small surface, `write` may store prompts, instructions, or curated notes promoted from the Athena vault.
 
-These commands are the default operating story for AthenaMind inside AthenaPlatform.
+These commands are the default operating story for AthenaMind inside Cairn.
 
 The platform CLI is intentionally stripped to this small command surface.
 
@@ -44,5 +44,5 @@ The broader AthenaMind research repo may continue to carry experimental commands
 
 ## Integration Notes
 
-- AthenaMind in AthenaPlatform is a productized subset, not the full AthenaMind research repo.
+- AthenaMind in Cairn is a productized subset, not the full AthenaMind research repo.
 - Research-heavy docs, publication scaffolding, and broader experimentation surfaces may inform future work, but they should not define the default mental model for this product.

@@ -1,6 +1,6 @@
 # Products
 
-Canonical home for active AthenaPlatform products.
+Canonical home for active Cairn products.
 
 ## Current Products
 

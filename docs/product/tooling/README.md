@@ -1,6 +1,6 @@
 # Tooling Integration
 
-Landing area for cross-product tooling contracts in AthenaPlatform.
+Landing area for cross-product tooling contracts in Cairn.
 
 ## Purpose
 

@@ -61,4 +61,4 @@ Confirm response includes `selected_id`, `selection_mode`, and `source_path`.
 
 ## 5. (Optional) Export OTel Traces
 
-Telemetry and OTLP setup docs still need a dedicated AthenaPlatform import pass.
+Telemetry and OTLP setup docs still need a dedicated Cairn import pass.

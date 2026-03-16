@@ -1,6 +1,6 @@
 # Operator Docs
 
-Use this section when you want to run AthenaPlatform, not analyze its migration history.
+Use this section when you want to run Cairn, not analyze its migration history.
 
 ## Recommended Order
 

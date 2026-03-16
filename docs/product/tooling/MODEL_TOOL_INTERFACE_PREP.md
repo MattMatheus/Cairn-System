@@ -1,12 +1,12 @@
 # Model Tool Interface Prep
 
-Preparation document for the upcoming AthenaPlatform model tool interface spec.
+Preparation document for the upcoming Cairn model tool interface spec.
 
 Use this file as the first landing point for the formal spec once it is ready.
 
 ## Scope
 
-The planned interface should clarify how AthenaPlatform connects:
+The planned interface should clarify how Cairn connects:
 
 - model providers
 - agent tools
@@ -17,7 +17,7 @@ The planned interface should clarify how AthenaPlatform connects:
 
 This document remains a preparation artifact, not the next implementation contract.
 
-Per `ADR-0007`, AthenaPlatform should complete the bounded AthenaUse context/schema slice before promoting this prep document into a formal model/tool interface specification.
+Per `ADR-0007`, Cairn should complete the bounded AthenaUse context/schema slice before promoting this prep document into a formal model/tool interface specification.
 
 ## Decisions To Capture
 

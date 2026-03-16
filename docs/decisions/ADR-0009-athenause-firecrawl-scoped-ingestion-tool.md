@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-The personal AthenaPlatform system needs help with disorganized external material as much as it needs help with disorganized codebases.
+The personal Cairn system needs help with disorganized external material as much as it needs help with disorganized codebases.
 
 Firecrawl is under consideration because it can turn messy web pages and similar external sources into markdown-oriented output that fits the local Athena workflow:
 

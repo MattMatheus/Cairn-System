@@ -63,7 +63,7 @@ Run the platform smoke path once the endpoint is available:
 
 ## Storage Note
 
-The AthenaPlatform AthenaMind product is sqlite-only.
+The Cairn AthenaMind product is sqlite-only.
 If you want backend experiments beyond sqlite, use the separate research repo rather than this stripped personal product.
 
 ## Verify Runtime

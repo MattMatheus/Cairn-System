@@ -10,7 +10,7 @@ Accepted for platform bootstrap.
 
 ## Context
 
-AthenaPlatform needs a practical memory subsystem for developers using AthenaWork in agent-driven development.
+Cairn needs a practical memory subsystem for developers using AthenaWork in agent-driven development.
 
 The current AthenaMind implementation supports multiple backends and more advanced governance-oriented capabilities. That is too broad for the first unified platform.
 

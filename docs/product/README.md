@@ -1,6 +1,6 @@
 # Product Docs
 
-Cross-product documentation for AthenaPlatform.
+Cross-product documentation for Cairn.
 
 ## Main Product Areas
 

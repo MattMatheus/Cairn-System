@@ -63,7 +63,7 @@ func NormalizeURL(ctx context.Context, target string) (Artifact, error) {
 	if err != nil {
 		return Artifact{}, err
 	}
-	req.Header.Set("User-Agent", "AthenaPlatform-Intake/0")
+	req.Header.Set("User-Agent", "Cairn-Intake/0")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return Artifact{}, err

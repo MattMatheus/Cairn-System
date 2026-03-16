@@ -2,7 +2,7 @@
 
 This folder contains historical AthenaWork architecture backlog artifacts imported for reference.
 
-These files are retained because they may still provide useful design context, but they are not active AthenaPlatform work items.
+These files are retained because they may still provide useful design context, but they are not active Cairn work items.
 
 For active platform work, use:
 
