@@ -1,6 +1,6 @@
 # Delivery Workflow
 
-This page describes the delivery flow. For the shortest active path, pair it with `products/athena-work/HUMANS.md`.
+This page describes the delivery flow. For the shortest active path, pair it with `products/work-harness/HUMANS.md`.
 
 ## Stage Sequence
 1. Planning

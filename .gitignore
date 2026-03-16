@@ -6,7 +6,7 @@ Thumbs.db
 
 *.log
 
-.athena/
+.cairn/
 .tmp/
 
 products/athena-work/operating-system/handoff/CURRENT.md

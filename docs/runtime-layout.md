@@ -4,7 +4,7 @@
 
 This document defines the recommended local runtime boundary for Cairn repositories.
 
-The default model is a repo-local `.athena/` directory that is ignored by git.
+The default model is a repo-local `.cairn/` directory that is ignored by git.
 
 ## Why
 
@@ -21,7 +21,7 @@ Repo-local runtime state is easier to understand, easier to clean, and easier to
 
 ```text
 <repo>/
-  .athena/
+  .cairn/
     workspace/
     memory/
     artifacts/
@@ -32,18 +32,18 @@ Repo-local runtime state is easier to understand, easier to clean, and easier to
 
 ## Directory Roles
 
-### `.athena/workspace/`
+### `.cairn/workspace/`
 
-Local AthenaWork runtime state:
+Local work harness runtime state:
 
 - queue material
 - generated handoffs
 - transient working notes
 - local copies of workspace artifacts when needed
 
-### `.athena/memory/`
+### `.cairn/memory/`
 
-Local AthenaMind runtime state:
+Local memory-cli runtime state:
 
 - sqlite or Mongo-backed memory roots
 - embeddings
@@ -51,7 +51,7 @@ Local AthenaMind runtime state:
 - telemetry files
 - snapshots
 
-### `.athena/artifacts/`
+### `.cairn/artifacts/`
 
 Fetched bootstrap material:
 
@@ -61,7 +61,7 @@ Fetched bootstrap material:
 
 This keeps fetched material out of the committed tree.
 
-### `.athena/cache/`
+### `.cairn/cache/`
 
 Disposable caches:
 
@@ -69,7 +69,7 @@ Disposable caches:
 - indexing caches
 - short-lived local optimization outputs
 
-### `.athena/runs/`
+### `.cairn/runs/`
 
 Generated outputs:
 
@@ -77,7 +77,7 @@ Generated outputs:
 - execution reports
 - logs intended for local inspection
 
-### `.athena/config/`
+### `.cairn/config/`
 
 Machine-local overrides:
 
@@ -108,22 +108,22 @@ Keep uncommitted:
 
 ## Override Model
 
-Default behavior should prefer the repo-local `.athena/` directory.
+Default behavior should prefer the repo-local `.cairn/` directory.
 
 Advanced users may still opt into overrides:
 
-1. repo-local `.athena/`
-2. optional user-global Athena home
+1. repo-local `.cairn/`
+2. optional user-global Cairn home
 3. explicit environment variable overrides
 
 Suggested environment shape:
 
-- `ATHENA_HOME`
-- `ATHENA_WORKSPACE_ROOT`
-- `ATHENA_MEMORY_ROOT`
+- `CAIRN_HOME`
+- `CAIRN_WORKSPACE_ROOT`
+- `CAIRN_MEMORY_ROOT`
 
 ## Platform Direction
 
 This runtime layout should be the default internal-beta posture.
 
-The future bootstrap script should hydrate `.athena/artifacts/` and any required local runtime folders rather than assuming a shared global workspace.
+The future bootstrap script should hydrate `.cairn/artifacts/` and any required local runtime folders rather than assuming a shared global workspace.

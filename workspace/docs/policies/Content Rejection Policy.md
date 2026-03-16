@@ -4,7 +4,7 @@
 
 Prevent sensitive or low-safety content from entering the knowledge graph during capture, ingestion, and agent write-back.
 
-Scope: all of `Athena`.
+Scope: all of `Cairn`.
 
 ## Policy Outcomes
 
@@ -38,7 +38,7 @@ spans:
     confidence: 0.0
 actions:
   redact_spans: true
-  quarantine_path: "Athena/30 AI/Quarantine"
+  quarantine_path: "Cairn/30 AI/Quarantine"
   allow_graph_ingest: false
   require_human_review: true
 reason: "Short rationale"
@@ -131,7 +131,7 @@ audit:
 
 - `ALLOW`: proceed to normal ingest pipeline.
 - `REDACT_AND_ALLOW`: write redacted content, attach `audit`.
-- `QUARANTINE`: move to `Athena/30 AI/90 Quarantine/<YYYY-MM-DD>/`.
+- `QUARANTINE`: move to `Cairn/30 AI/90 Quarantine/<YYYY-MM-DD>/`.
 - `BLOCK`: reject write, emit alert item to agent queue.
 
 ## Claim-Graph Compatibility

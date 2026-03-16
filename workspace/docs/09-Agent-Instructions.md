@@ -2,7 +2,7 @@
 
 ## Primary Directives
 1. Follow `AGENTS.md` first.
-2. Apply operating contracts from `products/athena-work/operating-system-vault/*`.
+2. Apply operating contracts from `products/work-harness/operating-system-vault/*`.
 3. Use queue lanes for all delivery state movement.
 4. Keep knowledge promotions evidence-backed.
 5. Do not bypass human approval boundaries.

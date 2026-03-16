@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
   "agent_section": {
-    "name": "AthenaWork Agent Operations",
+    "name": "work harness Agent Operations",
     "layout": {
       "operator_entrypoint": "workspace/docs/HUMANS.md",
       "agent_entrypoint": "workspace/AGENTS.md",
       "core_paths": {
         "work_zone": "workspace/work/",
-        "contracts_zone": "products/athena-work/operating-system-vault/",
+        "contracts_zone": "products/work-harness/operating-system-vault/",
         "assets_zone": "workspace/templates/",
         "agent_zone": "workspace/agents/",
         "research_zone": "workspace/research/",

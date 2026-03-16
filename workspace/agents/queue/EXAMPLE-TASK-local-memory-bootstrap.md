@@ -19,7 +19,7 @@ acceptance_evidence: Example only. Demonstrates queue metadata shape and workflo
 
 ## Intent
 
-Show a simple AthenaWork task that uses AthenaMind as a local memory helper.
+Show a simple work harness task that uses memory-cli as a local memory helper.
 
 ## Acceptance Idea
 

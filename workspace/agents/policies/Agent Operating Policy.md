@@ -2,7 +2,7 @@
 
 ## Scope
 
-This policy governs agent behavior across all of `Athena`.
+This policy governs agent behavior across all of `Cairn`.
 
 ## Runtime Model
 

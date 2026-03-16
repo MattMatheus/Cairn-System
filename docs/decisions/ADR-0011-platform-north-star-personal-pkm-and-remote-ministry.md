@@ -78,8 +78,8 @@ Cairn should avoid by default:
 
 This north star supports and reinforces existing product choices:
 
-- `athena-mind` remains small and dependable
-- `athena-use` remains a thin selector and explainer
+- `memory-cli` remains small and dependable
+- `tool-cli` remains a thin selector and explainer
 - `intake-cli` remains markdown-first and review-first
 - Firecrawl-style heavy runtime posture remains non-default
 - GitNexus remains optional and scoped rather than ambient

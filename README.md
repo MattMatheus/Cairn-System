@@ -2,16 +2,16 @@
 
 This repository is the unified Cairn platform workspace.
 
-Today it contains the working Athena product family:
+Today it contains the working product surfaces:
 
-- `AthenaMind`: local developer memory and retrieval
-- `AthenaWork`: staged workflow and delivery operations
-- `AthenaUse`: governed tool discovery and context emission
+- `memory-cli`: local developer memory and retrieval
+- `work harness`: staged workflow and delivery operations
+- `tool-cli`: governed tool discovery and context emission
 - `workspace/`: markdown-native operating surface
 
 ## Current State
 
-This root repository was initialized on 2026-03-12 to unify AthenaMind and AthenaWork into a single usable platform.
+This root repository was initialized on 2026-03-12 to unify memory-cli and work harness into a single usable platform.
 
 ## North Star
 
@@ -27,7 +27,7 @@ That means the platform should prefer local-first operation, explicit review, lo
 Current posture:
 
 - the platform umbrella is `Cairn`
-- `AthenaMind`, `AthenaUse`, and `AthenaWork` remain the current internal product names in this repository
+- `memory-cli`, `tool-cli`, and `work harness` remain the current internal product names in this repository
 - the GitHub repository name `cairn-system` is reserved to isolate the UI component, not to rename the platform umbrella again
 
 Rename policy:
@@ -41,7 +41,7 @@ Today the platform contains:
 - `products/` as the canonical home for platform-owned product code
 - `tools/` as the shared tooling surface
 - `workspace/` as the canonical markdown workspace surface
-- `.athena/` as the intended repo-local runtime area for uncommitted operational state
+- `.cairn/` as the intended repo-local runtime area for uncommitted operational state
 
 ## Start Here
 
@@ -57,12 +57,12 @@ Today the platform contains:
 
 ```text
 Cairn/
-  .athena/
+  .cairn/
   docs/
   products/
-    athena-mind/
-    athena-work/
-    athena-use/
+    memory-cli/
+    work-harness/
+    tool-cli/
   tools/
     platform/
     dev/
@@ -77,12 +77,12 @@ Cairn/
 
 Committed product and platform inputs stay in the repository.
 
-Uncommitted runtime state should live under a repo-local `.athena/` directory so each repository has an isolated Athena operating area without leaking personal state or generated artifacts upstream.
+Uncommitted runtime state should live under a repo-local `.cairn/` directory so each repository has an isolated Cairn operating area without leaking personal state or generated artifacts upstream.
 
 That runtime area is intended for:
 
-- local AthenaWork workspace state
-- AthenaMind memory roots
+- local work harness workspace state
+- memory-cli memory roots
 - fetched bootstrap artifacts
 - caches
 - run outputs
@@ -90,7 +90,7 @@ That runtime area is intended for:
 
 ## Product Intent
 
-### `products/athena-mind`
+### `products/memory-cli`
 
 A slim developer memory system with:
 
@@ -98,7 +98,7 @@ A slim developer memory system with:
 - `sqlite` as the storage path
 - a Go CLI as the main integration surface
 
-### `products/athena-work`
+### `products/work-harness`
 
 A unified work operating system combining:
 

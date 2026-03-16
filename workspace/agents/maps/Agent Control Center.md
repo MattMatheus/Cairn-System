@@ -14,8 +14,8 @@ Use this page as the shortest agent-side index into the workspace control plane.
 ## References
 
 - `workspace/docs/README.md` for workspace operating guidance
-- `products/athena-work/AGENTS.md` for AthenaWork agent behavior
-- `products/athena-mind/skills/athena-mind/SKILL.md` for AthenaMind usage
+- `products/work-harness/AGENTS.md` for work harness agent behavior
+- `products/memory-cli/skills/memory-cli/SKILL.md` for memory-cli usage
 - `docs/product/` and `docs/operator/` for deeper product and operator references
 
 ## Policies
@@ -23,14 +23,14 @@ Use this page as the shortest agent-side index into the workspace control plane.
 - `workspace/agents/policies/Agent Operating Policy.md`
 - `workspace/agents/policies/Schema Contract.md`
 - `workspace/agents/policies/Content Rejection Policy.md`
-- `products/athena-work/operating-system-vault/README.md`
-- `products/athena-work/operating-system-vault/STAGE_EXIT_GATES.md`
+- `products/work-harness/operating-system-vault/README.md`
+- `products/work-harness/operating-system-vault/STAGE_EXIT_GATES.md`
 
 ## Outputs
 
 - `workspace/agents/memory/`
 - `workspace/agents/staging/`
-- `.athena/runs/` for repo-local runtime output and reports
+- `.cairn/runs/` for repo-local runtime output and reports
 
 ## Research Links
 

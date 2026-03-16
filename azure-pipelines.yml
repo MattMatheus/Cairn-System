@@ -23,16 +23,16 @@ steps:
   - script: ./tools/dev/bootstrap_platform.sh
     displayName: Bootstrap platform
 
-  - script: ./products/athena-work/tools/run_doc_tests.sh
-    displayName: Run AthenaWork doc tests
+  - script: ./products/work-harness/tools/run_doc_tests.sh
+    displayName: Run work harness doc tests
 
   - script: go test ./...
-    workingDirectory: $(Build.SourcesDirectory)/products/athena-use
-    displayName: Test AthenaUse
+    workingDirectory: $(Build.SourcesDirectory)/products/tool-cli
+    displayName: Test tool-cli
 
   - script: go test ./...
-    workingDirectory: $(Build.SourcesDirectory)/products/athena-mind
-    displayName: Test AthenaMind
+    workingDirectory: $(Build.SourcesDirectory)/products/memory-cli
+    displayName: Test memory-cli
 
   - script: ./tools/dev/build_release_artifacts.sh --version "$(RELEASE_VERSION)" --out-dir "$(Build.ArtifactStagingDirectory)"
     displayName: Build release artifacts
@@ -40,5 +40,5 @@ steps:
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(RELEASE_VERSION)'
-      ArtifactName: 'athena-release-artifacts'
+      ArtifactName: 'cairn-release-artifacts'
       publishLocation: 'Container'

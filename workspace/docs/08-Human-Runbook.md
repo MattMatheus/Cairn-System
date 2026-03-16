@@ -5,7 +5,7 @@ Use this as the daily operator checklist after reading `INTERNAL_BETA.md` and `P
 ## Daily Startup
 1. Open `workspace/docs/HUMANS.md`.
 2. Open `workspace/docs/README.md`.
-3. Confirm repo-local runtime state under `.athena/`.
+3. Confirm repo-local runtime state under `.cairn/`.
 4. Check active delivery queues.
 5. Check claim and artifact queues.
 6. Review staging proposals needing approval.
@@ -20,8 +20,8 @@ Use this as the daily operator checklist after reading `INTERNAL_BETA.md` and `P
 
 Main supporting commands:
 
-- `./products/athena-work/tools/launch_stage.sh <stage>`
-- `./products/athena-work/tools/run_observer_cycle.sh --cycle-id <cycle-id>`
+- `./products/work-harness/tools/launch_stage.sh <stage>`
+- `./products/work-harness/tools/run_observer_cycle.sh --cycle-id <cycle-id>`
 - `./tools/platform/validate_task_metadata.sh`
 
 ## Knowledge Operations

@@ -6,30 +6,30 @@ This is the simplest supported starting path for internal Cairn testers.
 
 - engineers comfortable with local tooling
 - AI champions trying the platform in real repo work
-- operators validating AthenaMind and AthenaWork together
+- operators validating memory-cli and work harness together
 
 ## Start Here
 
 1. Read `PLATFORM_QUICKSTART.md`.
-2. Use repo-local runtime state under `.athena/`.
+2. Use repo-local runtime state under `.cairn/`.
 3. Run the supported smoke path:
    - sqlite-first: `./tools/platform/smoke_v1.sh`
-4. For AthenaWork human workflow, read `workspace/docs/HUMANS.md`.
-5. For AthenaMind operator setup, read `docs/operator/athena-mind/getting-started/README.md`.
+4. For work harness human workflow, read `workspace/docs/HUMANS.md`.
+5. For memory-cli operator setup, read `docs/operator/memory-cli/getting-started/README.md`.
 
 ## Recommended Local Setup
 
 ```bash
-export ATHENA_HOME="$PWD/.athena"
-export ATHENA_MEMORY_ROOT="$ATHENA_HOME/memory/default"
-mkdir -p "$ATHENA_MEMORY_ROOT"
+export CAIRN_HOME="$PWD/.cairn"
+export CAIRN_MEMORY_ROOT="$CAIRN_HOME/memory/default"
+mkdir -p "$CAIRN_MEMORY_ROOT"
 ```
 
 Optional embeddings:
 
 ```bash
-export ATHENA_EMBEDDING_ENDPOINT="http://192.168.1.35:11434"
-export ATHENA_OLLAMA_EMBED_MODEL="mxbai-embed-large:latest"
+export CAIRN_EMBEDDING_ENDPOINT="http://192.168.1.35:11434"
+export CAIRN_OLLAMA_EMBED_MODEL="mxbai-embed-large:latest"
 ```
 
 ## Active Platform Surface
@@ -38,7 +38,7 @@ export ATHENA_OLLAMA_EMBED_MODEL="mxbai-embed-large:latest"
 - shared tooling: `tools/`
 - workspace contract: `workspace/`
 - operator and product docs: `docs/`
-- local runtime state: `.athena/`
+- local runtime state: `.cairn/`
 
 ## Historical Material
 

@@ -10,14 +10,14 @@ The planned interface should clarify how Cairn connects:
 
 - model providers
 - agent tools
-- AthenaWork workflow actions
-- AthenaMind retrieval and write operations
+- work harness workflow actions
+- memory-cli retrieval and write operations
 
 ## Current Status
 
 This document remains a preparation artifact, not the next implementation contract.
 
-Per `ADR-0007`, Cairn should complete the bounded AthenaUse context/schema slice before promoting this prep document into a formal model/tool interface specification.
+Per `ADR-0007`, Cairn should complete the bounded tool-cli context/schema slice before promoting this prep document into a formal model/tool interface specification.
 
 ## Decisions To Capture
 
@@ -27,9 +27,9 @@ Per `ADR-0007`, Cairn should complete the bounded AthenaUse context/schema slice
 - auth and local trust boundary
 - error model
 - logging and traceability requirements
-- repo-local runtime expectations under `.athena/`
+- repo-local runtime expectations under `.cairn/`
 - OpenTelemetry instrumentation requirements
-- dependency-boundary rules for AthenaUse
+- dependency-boundary rules for tool-cli
 
 ## Deferred Until Later
 
@@ -39,9 +39,9 @@ Per `ADR-0007`, Cairn should complete the bounded AthenaUse context/schema slice
 
 ## Existing Surfaces To Reconcile
 
-- `products/athena-mind/cmd/memory-cli/`
-- `products/athena-mind/internal/telemetry/`
-- `products/athena-work/tools/`
-- `docs/operator/athena-work/ATHENAMIND_CLI_CONTRACT.md`
+- `products/memory-cli/cmd/memory-cli/`
+- `products/memory-cli/internal/telemetry/`
+- `products/work-harness/tools/`
+- `docs/operator/work-harness/MEMORYCLI_CLI_CONTRACT.md`
 - `docs/runtime-layout.md`
 - `docs/product/tooling/README.md`

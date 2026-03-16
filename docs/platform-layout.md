@@ -15,7 +15,7 @@ The platform must support:
 
 ```text
 Cairn/
-  .athena/
+  .cairn/
     workspace/
     memory/
     artifacts/
@@ -28,9 +28,9 @@ Cairn/
     operator/
     product/
   products/
-    athena-mind/
-    athena-work/
-    athena-use/
+    memory-cli/
+    work-harness/
+    tool-cli/
   tools/
     platform/
     dev/
@@ -54,7 +54,7 @@ Platform-owned documentation:
 - operator guidance
 - product overviews
 
-### `products/athena-mind/`
+### `products/memory-cli/`
 
 Canonical home for the slim memory product:
 
@@ -64,7 +64,7 @@ Canonical home for the slim memory product:
 - optional document DB backend for advanced users
 - CLI-first integration
 
-### `products/athena-work/`
+### `products/work-harness/`
 
 Canonical home for the unified work system:
 
@@ -74,7 +74,7 @@ Canonical home for the unified work system:
 - validations
 - stage and observer machinery
 
-### `products/athena-use/`
+### `products/tool-cli/`
 
 Canonical home for the governed tool-context product:
 
@@ -101,12 +101,12 @@ Canonical markdown work surface:
 - `research/`: claims, concepts, artifacts, and maps
 - `templates/`: note and task templates
 
-### `.athena/`
+### `.cairn/`
 
 Repo-local runtime area, intentionally excluded from version control:
 
-- `workspace/`: local AthenaWork operational state
-- `memory/`: AthenaMind memory roots and backend state
+- `workspace/`: local work harness operational state
+- `memory/`: memory-cli memory roots and backend state
 - `artifacts/`: fetched bootstrap assets from Azure or other approved sources
 - `cache/`: disposable local caches
 - `runs/`: generated run output and transient logs
@@ -119,4 +119,4 @@ Repo-local runtime area, intentionally excluded from version control:
 3. Human-facing markdown workspace content lives under `workspace/`.
 4. Platform documentation lives under `docs/` rather than being mixed into product folders.
 5. Optional advanced backends must not increase the complexity of the default local path.
-6. Repo-local operational state belongs in `.athena/`, not in committed product folders.
+6. Repo-local operational state belongs in `.cairn/`, not in committed product folders.

@@ -15,7 +15,7 @@ This is a sample work note showing the kind of project context a developer might
 
 ## Goal
 
-Demonstrate how AthenaWork queue items and AthenaMind memory retrieval can support a normal development cycle.
+Demonstrate how work harness queue items and memory-cli memory retrieval can support a normal development cycle.
 
 ## Related Example Artifacts
 

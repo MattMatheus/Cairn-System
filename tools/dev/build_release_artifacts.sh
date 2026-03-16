@@ -4,7 +4,7 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/../.." && pwd))"
 version=""
-out_dir="${ATHENA_RELEASE_OUT_DIR:-$root_dir/.athena/artifacts/releases}"
+out_dir="${CAIRN_RELEASE_OUT_DIR:-$root_dir/.cairn/artifacts/releases}"
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
@@ -75,12 +75,12 @@ build_one() {
   )
 }
 
-"$root_dir/products/athena-work/tools/check_go_toolchain.sh"
+"$root_dir/products/work-harness/tools/check_go_toolchain.sh"
 
-build_one "$root_dir/products/athena-mind" "./cmd/memory-cli" "memory-cli" "darwin" "arm64" ""
-build_one "$root_dir/products/athena-mind" "./cmd/memory-cli" "memory-cli" "windows" "amd64" ".exe"
-build_one "$root_dir/products/athena-use" "./cmd/use-cli" "use-cli" "darwin" "arm64" ""
-build_one "$root_dir/products/athena-use" "./cmd/use-cli" "use-cli" "windows" "amd64" ".exe"
+build_one "$root_dir/products/memory-cli" "./cmd/memory-cli" "memory-cli" "darwin" "arm64" ""
+build_one "$root_dir/products/memory-cli" "./cmd/memory-cli" "memory-cli" "windows" "amd64" ".exe"
+build_one "$root_dir/products/tool-cli" "./cmd/tool-cli" "tool-cli" "darwin" "arm64" ""
+build_one "$root_dir/products/tool-cli" "./cmd/tool-cli" "tool-cli" "windows" "amd64" ".exe"
 
 (
   cd "$artifact_root"

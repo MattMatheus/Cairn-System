@@ -4,7 +4,7 @@
 Update all of the following together:
 - `workspace/AGENTS.md`
 - `workspace/docs/HUMANS.md`
-- `products/athena-work/operating-system-vault/*` affected contracts
+- `products/work-harness/operating-system-vault/*` affected contracts
 - `workspace/docs/*` affected explanatory docs
 
 ## Required Change Record

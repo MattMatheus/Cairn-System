@@ -1,0 +1,210 @@
+version: 1
+tools:
+  - id: cairn.platform.smoke_v1
+    name: Run Platform Smoke V1
+    description: Runs the supported sqlite-first Cairn smoke path from the repo root
+    status: active
+    availability: default
+    tags: [cairn, platform, smoke]
+    stage_affinity: [engineering, qa]
+    guidance: Use for repo-level validation when platform health or release readiness needs a quick baseline check
+    credential: ""
+    call:
+      type: exec
+      command: ./tools/platform/smoke_v1.sh
+    schema: []
+  - id: obsidian.open_cairn_vault
+    name: Open Cairn Vault
+    description: Opens the Cairn Obsidian vault for note review, intake, and working documentation
+    status: active
+    availability: required
+    tags: [obsidian, docs, notes, intake]
+    stage_affinity: [planning, architect, engineering, qa, pm, cycle, release]
+    guidance: Required review surface for personal-system notes, inbox intake, and markdown working docs
+    complements: [memory-cli]
+    credential: ""
+    call:
+      type: exec
+      command: obsidian open --vault Cairn
+    schema: []
+  - id: cairn.memory.verify_health
+    name: Verify memory-cli Health
+    description: Checks local memory-cli retrieval health for a memory root and query
+    status: active
+    availability: default
+    tags: [cairn, memory, validation]
+    stage_affinity: [engineering, qa, pm]
+    guidance: Use when confirming the local memory-cli store is healthy before relying on retrieval in a workflow
+    credential: ""
+    call:
+      type: exec
+      command: cd products/memory-cli && go run ./cmd/memory-cli verify health
+    schema:
+      - name: root
+        type: string
+        required: true
+        description: Repo-local memory-cli memory root to evaluate, typically under .cairn/memory/
+      - name: query
+        type: string
+        required: true
+        description: Health-check query used to verify retrieval can return the expected memory
+      - name: domain
+        type: string
+        required: false
+        description: Optional domain filter when health should be checked against a narrower memory slice
+  - id: cairn.docs.run_tests
+    name: Run work harness Doc Tests
+    description: Runs the work harness documentation and state-harness baseline test suite
+    status: active
+    availability: default
+    tags: [cairn, docs, validation]
+    stage_affinity: [engineering, qa, pm]
+    guidance: Use when doc, state harness, or workflow guidance changes need a baseline confidence check
+    credential: ""
+    call:
+      type: exec
+      command: ./products/work-harness/tools/run_doc_tests.sh
+    schema: []
+  - id: cairn.workspace.validate_task_metadata
+    name: Validate Workspace Task Metadata
+    description: Validates workspace task-note metadata for changed files or a full target directory scan
+    status: active
+    availability: default
+    tags: [cairn, workspace, validation, metadata]
+    stage_affinity: [engineering, qa, pm]
+    guidance: Use when task notes or workspace markdown structures have changed and metadata drift is a concern
+    credential: ""
+    call:
+      type: exec
+      command: ./tools/platform/validate_task_metadata.sh
+    schema:
+      - name: mode
+        type: string
+        required: false
+        description: Select whether to validate only changed markdown task notes or scan the full target directory
+        enum: [changed, all]
+      - name: target_dir
+        type: string
+        required: false
+        description: Optional workspace-relative or absolute directory to validate instead of the default workspace root
+  - id: cairn.go.check_toolchain
+    name: Check Go Toolchain Readiness
+    description: Verifies the installed Go toolchain satisfies the repo go.mod requirement
+    status: active
+    availability: default
+    tags: [cairn, go, validation, readiness]
+    stage_affinity: [engineering, qa]
+    guidance: Use before Go builds or test runs when local toolchain drift is suspected
+    credential: ""
+    call:
+      type: exec
+      command: ./products/work-harness/tools/check_go_toolchain.sh
+    schema: []
+  - id: cairn.intake.inspect_source
+    name: Inspect Intake Source Fit
+    description: Inspects a URL, file, or folder and reports how Cairn intake will treat it before any staging occurs
+    status: active
+    availability: scoped
+    tags: [cairn, intake, docs, research, inspection]
+    stage_affinity: [planning, architect, pm]
+    guidance: Use first when deciding whether a source belongs in the intake workflow and before writing anything into the vault
+    complements: [obsidian.open_cairn_vault]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/tool-cli && go run ./cmd/intake-cli inspect --format json
+    schema:
+      - name: source
+        type: string
+        required: true
+        description: URL, file path, or folder path to inspect before intake
+  - id: cairn.intake.normalize_source
+    name: Stage Intake Source Into Cairn Inbox
+    description: Cairn intake utility for turning messy URLs, files, or folders into reviewable markdown in Obsidian
+    status: active
+    availability: scoped
+    tags: [cairn, intake, docs, research, ingestion]
+    stage_affinity: [planning, architect, engineering, pm]
+    guidance: Use after inspection when external material or stray local files should become a reviewable inbox artifact before possible memory-cli promotion
+    complements: [obsidian.open_cairn_vault, cairn.memory.verify_health]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/tool-cli && go run ./cmd/intake-cli stage
+    schema:
+      - name: source
+        type: string
+        required: true
+        description: URL, file path, or folder path to normalize into markdown intake artifacts
+      - name: into
+        type: string
+        required: false
+        description: Optional Obsidian vault-relative destination for staged output
+      - name: vault
+        type: string
+        required: false
+        description: Optional absolute Obsidian vault root when not using the default Cairn vault path
+      - name: title
+        type: string
+        required: false
+        description: Optional artifact title override for the staged markdown note
+  - id: cairn.memory.promote_note
+    name: Promote Reviewed Note Into memory-cli
+    description: Promotes a reviewed Cairn vault note into the local memory-cli store as a durable note entry with provenance
+    status: active
+    availability: scoped
+    tags: [cairn, memory, promotion, notes, curation]
+    stage_affinity: [planning, pm]
+    guidance: Use only after human review when a vault note should become canonical memory-cli memory rather than remain a staging or research artifact
+    complements: [obsidian.open_cairn_vault, cairn.memory.verify_health]
+    credential: ""
+    call:
+      type: exec
+      command: cd products/tool-cli && go run ./cmd/promote-cli note
+    schema:
+      - name: note_path
+        type: string
+        required: true
+        description: Absolute or workspace-relative Cairn vault note path to promote
+      - name: root
+        type: string
+        required: false
+        description: Optional memory-cli memory root, defaulting to CAIRN_MEMORY_ROOT or repo-local .cairn memory
+      - name: reviewer
+        type: string
+        required: true
+        description: Human reviewer identity required by memory-cli write policy
+      - name: reason
+        type: string
+        required: true
+        description: Why the reviewed note should be promoted into canonical memory
+      - name: risk
+        type: string
+        required: true
+        description: Risk note for the promotion decision
+      - name: notes
+        type: string
+        required: true
+        description: Decision notes recorded with the memory-cli write audit
+  - id: gitnexus.code_graph
+    name: Analyze Repository Structure With GitNexus
+    description: Planned thin Cairn-facing code graph contract for indexing messy repositories and answering context and impact questions
+    status: planned
+    availability: scoped
+    tags: [gitnexus, code, architecture, impact, analysis]
+    stage_affinity: [architect, engineering, pm]
+    guidance: Use when code archaeology, symbol context, or blast-radius analysis is needed in a poorly documented repository
+    complements: [cairn.memory.verify_health, obsidian.open_cairn_vault]
+    credential: ""
+    call:
+      type: planned
+      command: ""
+    schema:
+      - name: repo
+        type: string
+        required: false
+        description: Optional repository path when the current working directory is not the target repo
+      - name: target
+        type: string
+        required: false
+        description: Optional symbol or component name for context or impact analysis

@@ -1,16 +1,16 @@
-# AGENTS.md - AthenaWork Agent Operating Instructions
+# AGENTS.md - work harness Agent Operating Instructions
 
 ## Mission
-Run AthenaWork as a supervised, claim-first system with two connected planes:
+Run work harness as a supervised, claim-first system with two connected planes:
 - Delivery Plane: ship work through explicit queue states.
 - Knowledge Plane: promote claims only with evidence.
 
 ## First 10 Minutes (New Agent)
 1. Read `workspace/docs/HUMANS.md`.
 2. Read `workspace/docs/09-Agent-Instructions.md`.
-3. Read `products/athena-work/operating-system-vault/README.md`.
-4. Read `products/athena-work/operating-system-vault/STAGE_EXIT_GATES.md`.
-5. Read `products/athena-work/operating-system-vault/UNIFIED_METADATA_CONTRACT.md`.
+3. Read `products/work-harness/operating-system-vault/README.md`.
+4. Read `products/work-harness/operating-system-vault/STAGE_EXIT_GATES.md`.
+5. Read `products/work-harness/operating-system-vault/UNIFIED_METADATA_CONTRACT.md`.
 6. Read `workspace/docs/policies/Content Rejection Policy.md`.
 7. Open `workspace/agents/maps/Agent Control Center.md`.
 8. Use templates from `workspace/templates/` for new notes/items.
@@ -28,7 +28,7 @@ Run AthenaWork as a supervised, claim-first system with two connected planes:
 - `workspace/templates`
 - `workspace/agents`
 - `workspace/research`
-- `products/athena-work`
+- `products/work-harness`
 
 ## Write Boundaries
 - `Zone A (agent write)`:
@@ -130,7 +130,7 @@ Human resolves by setting `resolution_action` and returning the item to queue.
 - Layout/source contract: `workspace/agents/system.json`.
 - Use `tools/migration/prune_user_content.sh` when a user asks to remove personal work/research content.
 - Always offer backup export before deletion:
-  - `tools/migration/prune_user_content.sh --export-zip /writable/path/athenawork-user-content-backup.zip`
+  - `tools/migration/prune_user_content.sh --export-zip /writable/path/work-harness-user-content-backup.zip`
 - Destructive execution requires explicit confirmation token unless `--yes` is provided.
 - If export fails due sandbox/permissions, rerun with escalated permissions instead of skipping export.
 - After prune: review diff, commit only prune-related changes, and push a review branch.
@@ -139,15 +139,15 @@ Human resolves by setting `resolution_action` and returning the item to queue.
 
 Before implementing or researching any vendor integration, check the registry for the pinned version and canonical docs URL:
 
-- `products/athena-work/operating-system-vault/README.md`
+- `products/work-harness/operating-system-vault/README.md`
 
 Do not assume `latest`. If a vendor or version is missing from the registry, escape with `escape_class: missing_context`.
 
 ## Primary References
 - `workspace/docs/09-Agent-Instructions.md`
-- `products/athena-work/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
-- `products/athena-work/operating-system-vault/STAGE_EXIT_GATES.md`
-- `products/athena-work/operating-system-vault/DELIVERY_STATE_MODEL.md`
-- `products/athena-work/operating-system-vault/KNOWLEDGE_STATE_MODEL.md`
-- `products/athena-work/operating-system-vault/UNIFIED_METADATA_CONTRACT.md`
+- `products/work-harness/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
+- `products/work-harness/operating-system-vault/STAGE_EXIT_GATES.md`
+- `products/work-harness/operating-system-vault/DELIVERY_STATE_MODEL.md`
+- `products/work-harness/operating-system-vault/KNOWLEDGE_STATE_MODEL.md`
+- `products/work-harness/operating-system-vault/UNIFIED_METADATA_CONTRACT.md`
 - `workspace/agents/policies/Plugin Baseline.md`

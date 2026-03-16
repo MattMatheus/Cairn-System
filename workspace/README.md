@@ -2,7 +2,7 @@
 
 Canonical markdown workspace surface for Cairn.
 
-This is the practical daily-use environment for developers using AthenaWork with AthenaMind-backed assistance.
+This is the practical daily-use environment for developers using work harness with memory-cli-backed assistance.
 
 ## Start Here
 
@@ -22,9 +22,9 @@ This is the practical daily-use environment for developers using AthenaWork with
 
 Committed workspace guidance lives here.
 
-Repo-local runtime state belongs under `.athena/`, especially:
+Repo-local runtime state belongs under `.cairn/`, especially:
 
-- `.athena/workspace/`
-- `.athena/memory/`
-- `.athena/runs/`
-- `.athena/artifacts/`
+- `.cairn/workspace/`
+- `.cairn/memory/`
+- `.cairn/runs/`
+- `.cairn/artifacts/`

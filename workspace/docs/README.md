@@ -1,6 +1,6 @@
-# AthenaWork Documentation Hub
+# work harness Documentation Hub
 
-This folder is the canonical documentation set for the AthenaWork operating system.
+This folder is the canonical documentation set for the work harness operating system.
 
 ## Quick Links
 - [System Overview](01-System-Overview.md)
@@ -17,12 +17,12 @@ This folder is the canonical documentation set for the AthenaWork operating syst
 - [Template Library](../templates/)
 
 ## Source Contracts
-- `products/athena-work/operating-system-vault/README.md`
-- `products/athena-work/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
-- `products/athena-work/operating-system-vault/STAGE_EXIT_GATES.md`
-- `products/athena-work/operating-system-vault/DELIVERY_STATE_MODEL.md`
-- `products/athena-work/operating-system-vault/KNOWLEDGE_STATE_MODEL.md`
-- `products/athena-work/operating-system-vault/UNIFIED_METADATA_CONTRACT.md`
+- `products/work-harness/operating-system-vault/README.md`
+- `products/work-harness/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
+- `products/work-harness/operating-system-vault/STAGE_EXIT_GATES.md`
+- `products/work-harness/operating-system-vault/DELIVERY_STATE_MODEL.md`
+- `products/work-harness/operating-system-vault/KNOWLEDGE_STATE_MODEL.md`
+- `products/work-harness/operating-system-vault/UNIFIED_METADATA_CONTRACT.md`
 
 ## Scope
 - Includes operating system rules and execution guidance.

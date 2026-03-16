@@ -4,9 +4,9 @@ Canonical home for active Cairn products.
 
 ## Current Products
 
-- `products/athena-mind/`
-- `products/athena-work/`
-- `products/athena-use/`
+- `products/memory-cli/`
+- `products/work-harness/`
+- `products/tool-cli/`
 
 ## Notes
 

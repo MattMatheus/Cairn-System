@@ -6,14 +6,14 @@ Use this section when you want to run Cairn, not analyze its migration history.
 
 1. Internal beta entry: `INTERNAL_BETA.md`
 2. Platform quickstart: `PLATFORM_QUICKSTART.md`
-3. AthenaMind getting started: `docs/operator/athena-mind/getting-started/README.md`
-4. AthenaWork operator flow: `docs/operator/athena-work/HUMANS.md`
+3. memory-cli getting started: `docs/operator/memory-cli/getting-started/README.md`
+4. work harness operator flow: `docs/operator/work-harness/HUMANS.md`
 
 ## Main Operator Areas
 
-- `docs/operator/athena-mind/`
-- `docs/operator/athena-work/`
+- `docs/operator/memory-cli/`
+- `docs/operator/work-harness/`
 
 ## Notes
 
-- Repo-local runtime state should live under `.athena/`.
+- Repo-local runtime state should live under `.cairn/`.

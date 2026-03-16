@@ -3,14 +3,14 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (cd "$script_dir/../.." && pwd))"
-athena_home="${ATHENA_HOME:-$root_dir/.athena}"
+cairn_home="${CAIRN_HOME:-$root_dir/.cairn}"
 
-memory_root="${ATHENA_SMOKE_MEMORY_ROOT:-${ATHENA_MEMORY_ROOT:-$athena_home/memory/smoke-v1}}"
+memory_root="${CAIRN_SMOKE_MEMORY_ROOT:-${CAIRN_MEMORY_ROOT:-$cairn_home/memory/smoke-v1}}"
 mkdir -p "$memory_root"
-embedding_endpoint="${ATHENA_EMBEDDING_ENDPOINT:-}"
-embedding_model="${ATHENA_OLLAMA_EMBED_MODEL:-}"
+embedding_endpoint="${CAIRN_EMBEDDING_ENDPOINT:-}"
+embedding_model="${CAIRN_OLLAMA_EMBED_MODEL:-}"
 latency_threshold="${MEMORY_CONSTRAINT_LATENCY_P95_RETRIEVAL_MS:-}"
-runs_root="${ATHENA_RUNS_ROOT:-$athena_home/runs}"
+runs_root="${CAIRN_RUNS_ROOT:-$cairn_home/runs}"
 mkdir -p "$runs_root"
 
 current_branch="$(git -C "$root_dir" branch --show-current)"
@@ -18,20 +18,20 @@ if [[ -z "$current_branch" ]]; then
   current_branch="master"
 fi
 
-echo "== AthenaUse registry validation =="
-"$root_dir/tools/platform/validate_athenause_registry.sh" >/dev/null
+echo "== tool-cli registry validation =="
+"$root_dir/tools/platform/validate_tool_registry.sh" >/dev/null
 
-echo "== AthenaMind tests =="
+echo "== memory-cli tests =="
 (
-  cd "$root_dir/products/athena-mind"
+  cd "$root_dir/products/memory-cli"
   go test ./...
 )
 
-echo "== AthenaMind write =="
+echo "== memory-cli write =="
 (
-  cd "$root_dir/products/athena-mind"
+  cd "$root_dir/products/memory-cli"
   if [[ -n "$embedding_model" ]]; then
-    export ATHENA_OLLAMA_EMBED_MODEL="$embedding_model"
+    export CAIRN_OLLAMA_EMBED_MODEL="$embedding_model"
   fi
   args=(write
     --root "$memory_root"
@@ -52,11 +52,11 @@ echo "== AthenaMind write =="
   go run ./cmd/memory-cli "${args[@]}"
 )
 
-echo "== AthenaMind retrieve =="
+echo "== memory-cli retrieve =="
 (
-  cd "$root_dir/products/athena-mind"
+  cd "$root_dir/products/memory-cli"
   if [[ -n "$embedding_model" ]]; then
-    export ATHENA_OLLAMA_EMBED_MODEL="$embedding_model"
+    export CAIRN_OLLAMA_EMBED_MODEL="$embedding_model"
   fi
   args=(--root "$memory_root" --query "observer output before closing a cycle" --domain platform)
   if [[ -n "$embedding_endpoint" ]]; then
@@ -67,11 +67,11 @@ echo "== AthenaMind retrieve =="
 )
 
 if [[ -n "$embedding_endpoint" ]]; then
-  echo "== AthenaMind semantic health =="
+  echo "== memory-cli semantic health =="
   (
-    cd "$root_dir/products/athena-mind"
+    cd "$root_dir/products/memory-cli"
     if [[ -n "$embedding_model" ]]; then
-      export ATHENA_OLLAMA_EMBED_MODEL="$embedding_model"
+      export CAIRN_OLLAMA_EMBED_MODEL="$embedding_model"
     fi
     export MEMORY_CONSTRAINT_LATENCY_P95_RETRIEVAL_MS="${latency_threshold:-0}"
     go run ./cmd/memory-cli verify health \
@@ -82,24 +82,24 @@ if [[ -n "$embedding_endpoint" ]]; then
   )
 fi
 
-echo "== AthenaWork launch engineering =="
-ATHENA_REQUIRED_BRANCH="$current_branch" \
-  "$root_dir/products/athena-work/tools/launch_stage.sh" engineering >/dev/null || true
+echo "== work harness launch engineering =="
+CAIRN_REQUIRED_BRANCH="$current_branch" \
+  "$root_dir/products/work-harness/tools/launch_stage.sh" engineering >/dev/null || true
 
-echo "== AthenaWork launch qa =="
-ATHENA_REQUIRED_BRANCH="$current_branch" \
-  "$root_dir/products/athena-work/tools/launch_stage.sh" qa >/dev/null
+echo "== work harness launch qa =="
+CAIRN_REQUIRED_BRANCH="$current_branch" \
+  "$root_dir/products/work-harness/tools/launch_stage.sh" qa >/dev/null
 
-echo "== AthenaWork observer =="
-observer_out="${ATHENA_OBSERVER_OUTPUT:-$runs_root/observer-smoke-report.md}"
+echo "== work harness observer =="
+observer_out="${CAIRN_OBSERVER_OUTPUT:-$runs_root/observer-smoke-report.md}"
 mkdir -p "$(dirname "$observer_out")"
-ATHENA_REQUIRED_BRANCH="$current_branch" \
-  "$root_dir/products/athena-work/tools/run_observer_cycle.sh" \
+CAIRN_REQUIRED_BRANCH="$current_branch" \
+  "$root_dir/products/work-harness/tools/run_observer_cycle.sh" \
   --cycle-id smoke-v1 \
   --output "$observer_out" >/dev/null
 
 echo "smoke_v1: PASS"
-echo "athena_home: $athena_home"
+echo "cairn_home: $cairn_home"
 echo "memory_root: $memory_root"
 echo "observer_report: $observer_out"
 if [[ -n "$embedding_endpoint" ]]; then

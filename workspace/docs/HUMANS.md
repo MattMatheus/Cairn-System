@@ -8,6 +8,17 @@ Publish: "False"
 
 Primary human entrypoint for the markdown workspace surface.
 
+## System Concept
+
+- The notebook or vault is the human review and knowledge surface.
+- `memory-cli` stores durable promoted memory.
+- `tool-cli` exposes governed tool context.
+- `work-harness` runs the delivery and execution loop.
+
+Use the vault for review and meaning.
+
+Use the harness for execution.
+
 For the shortest supported internal-beta path, start with:
 
 1. `INTERNAL_BETA.md`
@@ -25,11 +36,11 @@ For the shortest supported internal-beta path, start with:
 - `workspace/templates/TemplateResearch.md`
 
 ### Operating System
-- `products/athena-work/HUMANS.md`
-- `products/athena-work/DEVELOPMENT_CYCLE.md`
-- `products/athena-work/operating-system-vault/README.md`
-- `products/athena-work/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
-- `products/athena-work/operating-system-vault/STAGE_EXIT_GATES.md`
+- `products/work-harness/HUMANS.md`
+- `products/work-harness/DEVELOPMENT_CYCLE.md`
+- `products/work-harness/operating-system-vault/README.md`
+- `products/work-harness/operating-system-vault/PROGRAM_CONTROL_PLANE.md`
+- `products/work-harness/operating-system-vault/STAGE_EXIT_GATES.md`
 
 ### Work
 - `workspace/work/`
